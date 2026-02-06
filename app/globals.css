@@ -3,12 +3,39 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #1a1a1a;
+  --card-bg: #ffffff;
+  --card-border: #f0f0f0;
+  --gold-primary: #D4AF37;
+  --gold-light: #F5E6A3;
+  --gold-dark: #B8960C;
+  --accent-maroon: #8B2942;
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
 }
+
 @layer utilities {
   .custom_scrollbar::-webkit-scrollbar {
-    display: "none";
+    display: none;
+  }
+  
+  .gold-shimmer {
+    background: linear-gradient(
+      110deg,
+      #D4AF37 0%,
+      #F5E6A3 25%,
+      #D4AF37 50%,
+      #F5E6A3 75%,
+      #D4AF37 100%
+    );
+    background-size: 200% 100%;
+    animation: gold-shine 3s ease-in-out infinite;
+  }
+  
+  .text-shadow-gold {
+    text-shadow: 0 1px 2px rgba(212, 175, 55, 0.3);
   }
 }
 
@@ -19,15 +46,22 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f0f0f;
+    --foreground: #f5f5f5;
+    --card-bg: #1a1a1a;
+    --card-border: #2a2a2a;
+    --text-primary: #f5f5f5;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @keyframes shimmer {
@@ -39,8 +73,35 @@ body {
   }
 }
 
+@keyframes gold-shine {
+  0%, 100% {
+    background-position: 200% center;
+  }
+  50% {
+    background-position: 0% center;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes pulse-gold {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(212, 175, 55, 0);
+  }
+}
+
 .skeleton-shimmer {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
   background-size: 1000px 100%;
   animation: shimmer 2s infinite linear;
 }
@@ -49,4 +110,48 @@ body {
   background: linear-gradient(90deg, #2a2a2a 25%, #333333 50%, #2a2a2a 75%);
   background-size: 1000px 100%;
   animation: shimmer 2s infinite linear;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-gold {
+  animation: pulse-gold 2s ease-in-out infinite;
+}
+
+/* Premium Gold Card Styles */
+.gold-card {
+  background: linear-gradient(145deg, #D4AF37 0%, #F5E6A3 30%, #D4AF37 60%, #B8960C 100%);
+  box-shadow: 
+    0 10px 40px rgba(212, 175, 55, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.gold-card-dark {
+  background: linear-gradient(145deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+/* Hide scrollbar for category chips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Scale-in animation for success modal */
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
