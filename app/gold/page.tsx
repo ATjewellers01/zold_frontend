@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
@@ -91,6 +91,18 @@ const coinBoxImages: Record<number, any> = {
 };
 
 export default function Page() {
+  return (
+    <Suspense fallback={
+        <div className="flex h-screen items-center justify-center bg-white dark:bg-[#141414]">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#B8960C] border-t-transparent"></div>
+        </div>
+    }>
+      <GoldContent />
+    </Suspense>
+  );
+}
+
+function GoldContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = Number(searchParams.get("id"));
