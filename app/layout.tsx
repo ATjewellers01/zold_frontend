@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import "leaflet/dist/leaflet.css";
+import Providers from "@/components/Providers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,8 +28,12 @@ export default function RootLayout({
       <body
         className={`${inter.variable} h-screen bg-white antialiased dark:bg-neutral-600`}
       >
-        <ThemeProvider defaultTheme="light" enableSystem={false} attribute="class">
-          {children}
+        <ThemeProvider
+          defaultTheme="light"
+          enableSystem={false}
+          attribute="class"
+        >
+          <Providers>{children}</Providers>
         </ThemeProvider>
       </body>
     </html>

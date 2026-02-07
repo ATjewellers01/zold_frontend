@@ -82,7 +82,9 @@ export function HomeTab({
   const [userGoldGrams, setUserGoldGrams] = useState(0);
   const [userGoldValue, setUserGoldValue] = useState(0);
   const [profitToday, setProfitToday] = useState(0);
-  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>(
+    [],
+  );
   const [totalCoins, setTotalCoins] = useState(0);
   const [coinInventory, setCoinInventory] = useState<CoinInventoryItem[]>([]);
   const [totalCoinValue, setTotalCoinValue] = useState(0);
@@ -140,12 +142,12 @@ export function HomeTab({
         const coinsData = await coinsRes.json();
         if (coinsData.success && coinsData.data?.inventory) {
           const inventory = coinsData.data.inventory.filter(
-            (coin: CoinInventoryItem) => coin.quantity > 0
+            (coin: CoinInventoryItem) => coin.quantity > 0,
           );
           setCoinInventory(inventory);
           const total = inventory.reduce(
             (sum: number, coin: CoinInventoryItem) => sum + coin.quantity,
-            0
+            0,
           );
           setTotalCoins(total);
           setTotalCoinValue(parseFloat(coinsData.data.totalValue) || 0);
@@ -171,7 +173,7 @@ export function HomeTab({
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
-      }
+      },
     );
 
     socket.on("connect", () => {
@@ -183,7 +185,7 @@ export function HomeTab({
       (data: { buyRate: number; sellRate: number; timestamp: string }) => {
         setGoldBuyPrice(data.buyRate);
         setGoldSellPrice(data.sellRate);
-      }
+      },
     );
 
     socket.on("disconnect", () => {
@@ -195,7 +197,9 @@ export function HomeTab({
     };
   }, [fetchWalletData]);
 
-  const [chartTimeframe, setChartTimeframe] = useState<"1D" | "1W" | "1M" | "1Y">("1D");
+  const [chartTimeframe, setChartTimeframe] = useState<
+    "1D" | "1W" | "1M" | "1Y"
+  >("1D");
   const [showNotifications, setShowNotifications] = useState(false);
 
   const priceData = {
@@ -244,7 +248,12 @@ export function HomeTab({
 
   // Calculate total portfolio value
   const totalPortfolioValue = userGoldValue + totalCoinValue;
-  const totalGoldGrams = userGoldGrams + coinInventory.reduce((sum, coin) => sum + (coin.coinGrams * coin.quantity), 0);
+  const totalGoldGrams =
+    userGoldGrams +
+    coinInventory.reduce(
+      (sum, coin) => sum + coin.coinGrams * coin.quantity,
+      0,
+    );
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] pb-24 dark:bg-[#0a0a0a]">
@@ -263,10 +272,14 @@ export function HomeTab({
               className="rounded-xl object-cover shadow-sm"
             />
             <div>
-              <h1 className="text-lg font-bold text-[#1a1a1a] dark:text-white">ZOLD Gold</h1>
+              <h1 className="text-lg font-bold text-[#1a1a1a] dark:text-white">
+                ZOLD Gold
+              </h1>
               <div className="flex items-center gap-1">
                 <Shield className="h-3 w-3 text-emerald-500" />
-                <span className="text-xs text-emerald-600 dark:text-emerald-400">KYC Verified</span>
+                <span className="text-xs text-emerald-600 dark:text-emerald-400">
+                  KYC Verified
+                </span>
               </div>
             </div>
           </div>
@@ -282,39 +295,58 @@ export function HomeTab({
         </div>
 
         {/* Premium Gold Portfolio Card */}
-        <div className="relative overflow-hidden rounded-2xl gold-card p-5">
+        <div className="gold-card relative overflow-hidden rounded-2xl p-5">
           {/* Decorative shine */}
           <div className="absolute top-0 right-0 h-32 w-32 rounded-full bg-white/20 blur-3xl" />
           <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-          
+
           <div className="relative">
             {/* Total Value Section */}
             <div className="mb-4 flex items-start justify-between">
               <div>
-                <p className="mb-1 text-xs font-medium tracking-wider text-[#5a4a1a]/60 uppercase">Total Portfolio</p>
+                <p className="mb-1 text-xs font-medium tracking-wider text-[#5a4a1a]/60 uppercase">
+                  Total Portfolio
+                </p>
                 <p className="text-3xl font-bold text-[#2d2510]">
                   ₹{totalPortfolioValue.toLocaleString()}
                 </p>
                 <div className="mt-1.5 flex items-center gap-2">
-                  <span className="text-sm text-[#5a4a1a]/70">{totalGoldGrams.toFixed(3)}g gold</span>
-                  <span className={`flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold ${
-                    profitToday >= 0 
-                      ? "bg-emerald-600/20 text-emerald-800" 
-                      : "bg-red-600/20 text-red-800"
-                  }`}>
-                    {profitToday >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                    {profitToday >= 0 ? "+" : ""}₹{Math.abs(profitToday).toFixed(0)}
+                  <span className="text-sm text-[#5a4a1a]/70">
+                    {totalGoldGrams.toFixed(3)}g gold
+                  </span>
+                  <span
+                    className={`flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold ${
+                      profitToday >= 0
+                        ? "bg-emerald-600/20 text-emerald-800"
+                        : "bg-red-600/20 text-red-800"
+                    }`}
+                  >
+                    {profitToday >= 0 ? (
+                      <TrendingUp className="h-3 w-3" />
+                    ) : (
+                      <TrendingDown className="h-3 w-3" />
+                    )}
+                    {profitToday >= 0 ? "+" : ""}₹
+                    {Math.abs(profitToday).toFixed(0)}
                   </span>
                 </div>
               </div>
-              
+
               {/* Gold Bar Visual */}
               <div className="relative flex h-20 w-14 flex-col items-center justify-center rounded-lg bg-linear-to-b from-[#f5e6a3] via-[#e8c84a] to-[#c9a432] shadow-lg ring-1 ring-[#b8960c]/30">
                 <div className="absolute inset-0.5 rounded-md bg-linear-to-br from-white/40 to-transparent" />
-                <span className="relative text-[7px] font-semibold text-[#5a4a1a]/60">FINE GOLD</span>
-                <span className="relative text-[9px] font-medium text-[#5a4a1a]/50">999.0</span>
-                <span className="relative mt-0.5 text-sm font-bold text-[#3d3015]">24K</span>
-                <span className="relative text-[7px] font-semibold text-[#5a4a1a]/60">ZOLD</span>
+                <span className="relative text-[7px] font-semibold text-[#5a4a1a]/60">
+                  FINE GOLD
+                </span>
+                <span className="relative text-[9px] font-medium text-[#5a4a1a]/50">
+                  999.0
+                </span>
+                <span className="relative mt-0.5 text-sm font-bold text-[#3d3015]">
+                  24K
+                </span>
+                <span className="relative text-[7px] font-semibold text-[#5a4a1a]/60">
+                  ZOLD
+                </span>
               </div>
             </div>
 
@@ -324,18 +356,26 @@ export function HomeTab({
               <div className="flex-1 rounded-xl bg-[#2d2510]/10 p-3">
                 <div className="mb-1 flex items-center gap-1.5">
                   <Wallet className="h-3.5 w-3.5 text-[#5a4a1a]/70" />
-                  <span className="text-[10px] font-medium text-[#5a4a1a]/70">Digital Gold</span>
+                  <span className="text-[10px] font-medium text-[#5a4a1a]/70">
+                    Digital Gold
+                  </span>
                 </div>
-                <p className="text-base font-bold text-[#2d2510]">{userGoldGrams.toFixed(3)}g</p>
+                <p className="text-base font-bold text-[#2d2510]">
+                  {userGoldGrams.toFixed(3)}g
+                </p>
               </div>
-              
+
               {/* Gold Coins */}
               <div className="flex-1 rounded-xl bg-[#2d2510]/10 p-3">
                 <div className="mb-1 flex items-center gap-1.5">
                   <Coins className="h-3.5 w-3.5 text-[#5a4a1a]/70" />
-                  <span className="text-[10px] font-medium text-[#5a4a1a]/70">Gold Coins</span>
+                  <span className="text-[10px] font-medium text-[#5a4a1a]/70">
+                    Gold Coins
+                  </span>
                 </div>
-                <p className="text-base font-bold text-[#2d2510]">{totalCoins} coins</p>
+                <p className="text-base font-bold text-[#2d2510]">
+                  {totalCoins} coins
+                </p>
               </div>
             </div>
 
@@ -362,7 +402,7 @@ export function HomeTab({
             BUY & SELL ACTIONS - Professional Design
             ═══════════════════════════════════════════════════════════════ */}
         <div className="mb-4 flex gap-3">
-          {/* Buy Button - Primary CTA */}
+          {/* Buy Gold */}
           <button
             onClick={onBuyGold}
             className="group relative flex-1 overflow-hidden rounded-2xl bg-[#1a1a1a] p-4 transition-all hover:shadow-lg active:scale-[0.98] dark:bg-[#0a0a0a]"
@@ -379,7 +419,7 @@ export function HomeTab({
             </div>
           </button>
 
-          {/* Sell Button - Secondary */}
+          {/* Sell Gold */}
           <button
             onClick={onSellGold}
             className="group relative flex-1 overflow-hidden rounded-2xl border-2 border-[#e8e8e8] bg-white p-4 transition-all hover:border-[#D4AF37] hover:shadow-lg active:scale-[0.98] dark:border-[#2a2a2a] dark:bg-[#141414] dark:hover:border-[#D4AF37]"
@@ -389,8 +429,28 @@ export function HomeTab({
                 <TrendingDown className="h-5 w-5 text-[#666] transition-colors group-hover:text-[#B8960C] dark:text-[#888]" />
               </div>
               <div className="text-left">
-                <p className="text-sm font-bold text-[#1a1a1a] dark:text-white">Sell Gold</p>
+                <p className="text-sm font-bold text-[#1a1a1a] dark:text-white">
+                  Sell Gold
+                </p>
                 <p className="text-xs text-[#888]">Withdraw</p>
+              </div>
+            </div>
+          </button>
+
+          {/* Buy Coins */}
+          <button
+            onClick={() => router.push("/buy-coins")}
+            className="group relative flex-1 overflow-hidden rounded-2xl border-2 border-[#D4AF37]/40 bg-white p-4 transition-all hover:border-[#D4AF37] hover:shadow-lg active:scale-[0.98] dark:border-[#3a3a3a] dark:bg-[#141414]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#D4AF37]/10 transition-colors group-hover:bg-[#D4AF37]/20">
+                <Coins className="h-5 w-5 text-[#B8960C]" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-bold text-[#1a1a1a] dark:text-white">
+                  Buy Coins
+                </p>
+                <p className="text-xs text-[#888]">Gold coins</p>
               </div>
             </div>
           </button>
@@ -399,16 +459,21 @@ export function HomeTab({
         {/* ═══════════════════════════════════════════════════════════════
             BUY GOLD COINS - Premium Section
             ═══════════════════════════════════════════════════════════════ */}
-        <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm dark:bg-[#141414]">
-          {/* Section Header */}
+
+        {/* <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm dark:bg-[#141414]">
+         
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-[#f5e6a3] to-[#d4af37]">
                 <Coins className="h-4 w-4 text-[#5a4a1a]" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[#1a1a1a] dark:text-white">Buy Gold Coins</h3>
-                <p className="text-[10px] text-[#888]">24K Pure • 999.0 Fineness</p>
+                <h3 className="text-sm font-bold text-[#1a1a1a] dark:text-white">
+                  Buy Gold Coins
+                </h3>
+                <p className="text-[10px] text-[#888]">
+                  24K Pure • 999.0 Fineness
+                </p>
               </div>
             </div>
             <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
@@ -416,7 +481,6 @@ export function HomeTab({
             </span>
           </div>
 
-          {/* Coin Options Grid */}
           <div className="grid grid-cols-4 gap-2">
             {[
               { weight: 1, price: goldBuyPrice * 1 },
@@ -429,30 +493,32 @@ export function HomeTab({
                 onClick={() => router.push("/buy-coins")}
                 className="group relative flex flex-col items-center rounded-xl border-2 border-[#f0f0f0] bg-[#fafafa] p-3 transition-all hover:border-[#D4AF37] hover:bg-white hover:shadow-md active:scale-[0.97] dark:border-[#2a2a2a] dark:bg-[#1a1a1a] dark:hover:border-[#D4AF37] dark:hover:bg-[#222]"
               >
-                {/* Coin Visual */}
+               
                 <div className="relative mb-2 flex h-12 w-12 items-center justify-center">
-                  {/* Gold coin circle */}
+               
                   <div className="absolute inset-0 rounded-full bg-linear-to-br from-[#f5e6a3] via-[#e8c84a] to-[#c9a432] shadow-md ring-2 ring-[#b8960c]/20" />
                   <div className="absolute inset-1 rounded-full bg-linear-to-br from-white/30 to-transparent" />
-                  {/* Weight label */}
+              
                   <div className="relative flex flex-col items-center">
-                    <span className="text-lg font-bold text-[#3d3015]">{coin.weight}</span>
-                    <span className="text-[8px] font-semibold text-[#5a4a1a]/70">GM</span>
+                    <span className="text-lg font-bold text-[#3d3015]">
+                      {coin.weight}
+                    </span>
+                    <span className="text-[8px] font-semibold text-[#5a4a1a]/70">
+                      GM
+                    </span>
                   </div>
                 </div>
-                
-                {/* Price */}
+
                 <p className="text-[11px] font-bold text-[#1a1a1a] dark:text-white">
                   ₹{Math.round(coin.price).toLocaleString()}
                 </p>
-                
-                {/* Hover indicator */}
+
+            
                 <div className="mt-1.5 h-0.5 w-4 rounded-full bg-[#e0e0e0] transition-all group-hover:w-6 group-hover:bg-[#D4AF37] dark:bg-[#333]" />
               </button>
             ))}
           </div>
 
-          {/* View All / Buy Coins CTA */}
           <div className="mt-3 flex items-center justify-between border-t border-[#f0f0f0] pt-3 dark:border-[#2a2a2a]">
             <button
               onClick={() => router.push("/buy-coins")}
@@ -468,10 +534,7 @@ export function HomeTab({
               Buy Coins
             </button>
           </div>
-        </div>
-
-
-
+        </div> */}
 
         {/* ═══════════════════════════════════════════════════════════════
             LIVE GOLD RATE - Clean Two-Column
@@ -483,40 +546,80 @@ export function HomeTab({
                 <span className="absolute h-2 w-2 animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative h-1.5 w-1.5 rounded-full bg-emerald-500" />
               </div>
-              <span className="text-sm font-semibold text-[#1a1a1a] dark:text-white">Live Gold Rate</span>
-              <span className="rounded bg-[#D4AF37]/15 px-1.5 py-0.5 text-[9px] font-bold text-[#B8960C]">24K • 999.0</span>
+              <span className="text-sm font-semibold text-[#1a1a1a] dark:text-white">
+                Live Gold Rate
+              </span>
+              <span className="rounded bg-[#D4AF37]/15 px-1.5 py-0.5 text-[9px] font-bold text-[#B8960C]">
+                24K • 999.0
+              </span>
             </div>
-            <span className={`flex items-center gap-0.5 text-xs font-semibold ${priceChange >= 0 ? "text-emerald-600" : "text-red-500"}`}>
-              {priceChange >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-              {priceChange >= 0 ? "+" : ""}{priceChange}%
+            <span
+              className={`flex items-center gap-0.5 text-xs font-semibold ${priceChange >= 0 ? "text-emerald-600" : "text-red-500"}`}
+            >
+              {priceChange >= 0 ? (
+                <TrendingUp className="h-3 w-3" />
+              ) : (
+                <TrendingDown className="h-3 w-3" />
+              )}
+              {priceChange >= 0 ? "+" : ""}
+              {priceChange}%
             </span>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl bg-emerald-50/50 p-3 dark:bg-emerald-900/10">
-              <p className="mb-0.5 text-[10px] font-medium text-emerald-700/70 uppercase dark:text-emerald-400/70">Buy</p>
-              <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">₹{goldBuyPrice.toFixed(2)}<span className="text-xs font-normal opacity-60">/g</span></p>
+              <p className="mb-0.5 text-[10px] font-medium text-emerald-700/70 uppercase dark:text-emerald-400/70">
+                Buy
+              </p>
+              <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
+                ₹{goldBuyPrice.toFixed(2)}
+                <span className="text-xs font-normal opacity-60">/g</span>
+              </p>
             </div>
             <div className="rounded-xl bg-rose-50/50 p-3 dark:bg-rose-900/10">
-              <p className="mb-0.5 text-[10px] font-medium text-rose-700/70 uppercase dark:text-rose-400/70">Sell</p>
-              <p className="text-lg font-bold text-rose-700 dark:text-rose-400">₹{goldSellPrice.toFixed(2)}<span className="text-xs font-normal opacity-60">/g</span></p>
+              <p className="mb-0.5 text-[10px] font-medium text-rose-700/70 uppercase dark:text-rose-400/70">
+                Sell
+              </p>
+              <p className="text-lg font-bold text-rose-700 dark:text-rose-400">
+                ₹{goldSellPrice.toFixed(2)}
+                <span className="text-xs font-normal opacity-60">/g</span>
+              </p>
             </div>
           </div>
-          
         </div>
 
-
-
-                {/* ═══════════════════════════════════════════════════════════════
+        {/* ═══════════════════════════════════════════════════════════════
             QUICK ACTIONS GRID
             ═══════════════════════════════════════════════════════════════ */}
         <div className="mb-4">
-          <h2 className="mb-3 font-semibold text-[#1a1a1a] dark:text-white">Quick Actions</h2>
+          <h2 className="mb-3 font-semibold text-[#1a1a1a] dark:text-white">
+            Quick Actions
+          </h2>
           <div className="grid grid-cols-4 gap-3">
             {[
-              { icon: Target, label: "Goals", onClick: onOpenGoldGoals, color: "#8B2942" },
-              { icon: Gift, label: "Gift", onClick: onOpenGiftGold, color: "#D4AF37" },
-              { icon: Users, label: "Refer", onClick: onOpenReferral, color: "#3B82F6" },
-              { icon: ShoppingBag, label: "Shop", onClick: onJewellery, color: "#8B5CF6" },
+              {
+                icon: Target,
+                label: "Goals",
+                onClick: onOpenGoldGoals,
+                color: "#8B2942",
+              },
+              {
+                icon: Gift,
+                label: "Gift",
+                onClick: onOpenGiftGold,
+                color: "#D4AF37",
+              },
+              {
+                icon: Users,
+                label: "Refer",
+                onClick: onOpenReferral,
+                color: "#3B82F6",
+              },
+              {
+                icon: ShoppingBag,
+                label: "Shop",
+                onClick: onJewellery,
+                color: "#8B5CF6",
+              },
             ].map((action, idx) => (
               <button
                 key={idx}
@@ -527,9 +630,14 @@ export function HomeTab({
                   className="flex h-10 w-10 items-center justify-center rounded-full"
                   style={{ backgroundColor: `${action.color}15` }}
                 >
-                  <action.icon className="h-5 w-5" style={{ color: action.color }} />
+                  <action.icon
+                    className="h-5 w-5"
+                    style={{ color: action.color }}
+                  />
                 </div>
-                <span className="text-xs font-medium text-[#1a1a1a] dark:text-white">{action.label}</span>
+                <span className="text-xs font-medium text-[#1a1a1a] dark:text-white">
+                  {action.label}
+                </span>
               </button>
             ))}
           </div>
@@ -541,7 +649,9 @@ export function HomeTab({
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-[#D4AF37]" />
-              <span className="font-semibold text-[#1a1a1a] dark:text-white">Price Chart</span>
+              <span className="font-semibold text-[#1a1a1a] dark:text-white">
+                Price Chart
+              </span>
             </div>
             <div className="flex gap-1 rounded-lg bg-[#f5f5f5] p-1 dark:bg-[#222]">
               {(["1D", "1W", "1M", "1Y"] as const).map((tf) => (
@@ -564,14 +674,36 @@ export function HomeTab({
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={priceData[chartTimeframe]}>
                 <defs>
-                  <linearGradient id="goldAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient
+                    id="goldAreaGradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
                     <stop offset="0%" stopColor="#D4AF37" stopOpacity={0.3} />
                     <stop offset="100%" stopColor="#D4AF37" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" className="dark:stroke-[#333]" />
-                <XAxis dataKey="time" stroke="#888" fontSize={10} tickLine={false} axisLine={false} />
-                <YAxis stroke="#888" fontSize={10} tickLine={false} axisLine={false} domain={["dataMin - 50", "dataMax + 50"]} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#f0f0f0"
+                  className="dark:stroke-[#333]"
+                />
+                <XAxis
+                  dataKey="time"
+                  stroke="#888"
+                  fontSize={10}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke="#888"
+                  fontSize={10}
+                  tickLine={false}
+                  axisLine={false}
+                  domain={["dataMin - 50", "dataMax + 50"]}
+                />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "#1a1a1a",
@@ -580,7 +712,10 @@ export function HomeTab({
                     color: "#fff",
                     fontSize: "12px",
                   }}
-                  formatter={(value) => [`₹${Number(value).toLocaleString()}`, "Price"]}
+                  formatter={(value) => [
+                    `₹${Number(value).toLocaleString()}`,
+                    "Price",
+                  ]}
                 />
                 <Area
                   type="monotone"
@@ -596,20 +731,24 @@ export function HomeTab({
           <div className="mt-3 grid grid-cols-3 gap-2 border-t border-[#f0f0f0] pt-3 dark:border-[#333]">
             <div className="text-center">
               <p className="text-[10px] text-[#888] uppercase">High</p>
-              <p className="font-semibold text-[#1a1a1a] dark:text-white">₹6,280</p>
+              <p className="font-semibold text-[#1a1a1a] dark:text-white">
+                ₹6,280
+              </p>
             </div>
-            <div className="text-center border-x border-[#f0f0f0] dark:border-[#333]">
+            <div className="border-x border-[#f0f0f0] text-center dark:border-[#333]">
               <p className="text-[10px] text-[#888] uppercase">Low</p>
-              <p className="font-semibold text-[#1a1a1a] dark:text-white">₹6,145</p>
+              <p className="font-semibold text-[#1a1a1a] dark:text-white">
+                ₹6,145
+              </p>
             </div>
             <div className="text-center">
               <p className="text-[10px] text-[#888] uppercase">Vol</p>
-              <p className="font-semibold text-[#1a1a1a] dark:text-white">125 kg</p>
+              <p className="font-semibold text-[#1a1a1a] dark:text-white">
+                125 kg
+              </p>
             </div>
           </div>
         </div>
-
-
 
         {/* ═══════════════════════════════════════════════════════════════
             AUSPICIOUS DAYS BANNER
@@ -622,7 +761,9 @@ export function HomeTab({
             <div>
               <div className="mb-1 flex items-center gap-2">
                 <Star className="h-4 w-4 text-[#D4AF37]" />
-                <span className="text-xs font-medium text-white/80">शुभ मुहूर्त</span>
+                <span className="text-xs font-medium text-white/80">
+                  शुभ मुहूर्त
+                </span>
               </div>
               <h3 className="mb-1 text-lg font-bold">Auspicious Days</h3>
               <p className="text-sm text-white/70">Pushya Nakshatra • Jan 13</p>
@@ -636,8 +777,13 @@ export function HomeTab({
             ═══════════════════════════════════════════════════════════════ */}
         <div className="mb-4">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold text-[#1a1a1a] dark:text-white">Your Goals</h2>
-            <button onClick={onOpenGoldGoals} className="text-sm font-medium text-[#8B2942]">
+            <h2 className="font-semibold text-[#1a1a1a] dark:text-white">
+              Your Goals
+            </h2>
+            <button
+              onClick={onOpenGoldGoals}
+              className="text-sm font-medium text-[#8B2942]"
+            >
               View All
             </button>
           </div>
@@ -653,13 +799,19 @@ export function HomeTab({
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-[#1a1a1a] dark:text-white">Wedding Jewellery</h4>
-                    <span className="text-xs font-bold text-[#D4AF37]">25%</span>
+                    <h4 className="font-semibold text-[#1a1a1a] dark:text-white">
+                      Wedding Jewellery
+                    </h4>
+                    <span className="text-xs font-bold text-[#D4AF37]">
+                      25%
+                    </span>
                   </div>
                   <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[#f0f0f0] dark:bg-[#333]">
                     <div className="h-full w-1/4 rounded-full bg-[#D4AF37]" />
                   </div>
-                  <p className="mt-1 text-xs text-[#888]">₹1.25L / ₹5L • 425 days left</p>
+                  <p className="mt-1 text-xs text-[#888]">
+                    ₹1.25L / ₹5L • 425 days left
+                  </p>
                 </div>
               </div>
             </button>
@@ -674,13 +826,19 @@ export function HomeTab({
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-[#1a1a1a] dark:text-white">Diwali Gold</h4>
-                    <span className="text-xs font-bold text-[#8B2942]">45%</span>
+                    <h4 className="font-semibold text-[#1a1a1a] dark:text-white">
+                      Diwali Gold
+                    </h4>
+                    <span className="text-xs font-bold text-[#8B2942]">
+                      45%
+                    </span>
                   </div>
                   <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[#f0f0f0] dark:bg-[#333]">
                     <div className="h-full w-[45%] rounded-full bg-[#8B2942]" />
                   </div>
-                  <p className="mt-1 text-xs text-[#888]">₹45K / ₹1L • 325 days left</p>
+                  <p className="mt-1 text-xs text-[#888]">
+                    ₹45K / ₹1L • 325 days left
+                  </p>
                 </div>
               </div>
             </button>
@@ -692,8 +850,13 @@ export function HomeTab({
             ═══════════════════════════════════════════════════════════════ */}
         <div className="mb-4">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold text-[#1a1a1a] dark:text-white">Recent Activity</h2>
-            <button onClick={onOpenWalletDetails} className="text-sm font-medium text-[#8B2942]">
+            <h2 className="font-semibold text-[#1a1a1a] dark:text-white">
+              Recent Activity
+            </h2>
+            <button
+              onClick={onOpenWalletDetails}
+              className="text-sm font-medium text-[#8B2942]"
+            >
               See All
             </button>
           </div>
@@ -704,7 +867,9 @@ export function HomeTab({
                 <div
                   key={tx.id}
                   className={`flex items-center justify-between px-4 py-3.5 ${
-                    idx < 2 ? "border-b border-[#f0f0f0] dark:border-[#333]" : ""
+                    idx < 2
+                      ? "border-b border-[#f0f0f0] dark:border-[#333]"
+                      : ""
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -725,14 +890,21 @@ export function HomeTab({
                       <p className="text-sm font-medium text-[#1a1a1a] dark:text-white">
                         {tx.type === "BUY" ? "Bought" : "Sold"} Gold
                       </p>
-                      <p className="text-xs text-[#888]">{new Date(tx.createdAt).toLocaleDateString()}</p>
+                      <p className="text-xs text-[#888]">
+                        {new Date(tx.createdAt).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className={`text-sm font-semibold ${tx.type === "BUY" ? "text-emerald-600" : "text-red-500"}`}>
-                      {tx.type === "BUY" ? "+" : "-"}{parseFloat(tx.goldGrams).toFixed(3)}g
+                    <p
+                      className={`text-sm font-semibold ${tx.type === "BUY" ? "text-emerald-600" : "text-red-500"}`}
+                    >
+                      {tx.type === "BUY" ? "+" : "-"}
+                      {parseFloat(tx.goldGrams).toFixed(3)}g
                     </p>
-                    <p className="text-xs text-[#888]">₹{parseFloat(tx.finalAmount).toFixed(0)}</p>
+                    <p className="text-xs text-[#888]">
+                      ₹{parseFloat(tx.finalAmount).toFixed(0)}
+                    </p>
                   </div>
                 </div>
               ))
@@ -753,7 +925,9 @@ export function HomeTab({
             <div className="flex items-start justify-between">
               <div>
                 <p className="mb-1 text-lg font-bold">Akshaya Tritiya</p>
-                <p className="mb-3 text-sm text-white/60">0% making charges up to 10g</p>
+                <p className="mb-3 text-sm text-white/60">
+                  0% making charges up to 10g
+                </p>
                 <button
                   onClick={onOpenGiftGold}
                   className="rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-[#1a1a1a] transition-colors hover:bg-[#c9a432]"
@@ -769,7 +943,9 @@ export function HomeTab({
             <div className="flex items-start justify-between">
               <div>
                 <p className="mb-1 text-lg font-bold text-[#1a1a1a]">Refer</p>
-                <p className="mb-3 text-sm text-[#1a1a1a]/60">Get ₹100 gold for each referral</p>
+                <p className="mb-3 text-sm text-[#1a1a1a]/60">
+                  Get ₹100 gold for each referral
+                </p>
                 <button
                   onClick={onOpenReferral}
                   className="rounded-lg bg-[#1a1a1a] px-4 py-2 text-sm font-semibold text-[#D4AF37] transition-colors hover:bg-[#333]"
