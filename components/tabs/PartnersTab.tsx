@@ -99,7 +99,7 @@ export function PartnersTab({ isLoading: _isLoading }: PartnerTabProps) {
         },
       });
       const data = await response.json();
-      
+
       if (data.success) {
         setPartners(data.partners);
       } else {
@@ -156,7 +156,7 @@ export function PartnersTab({ isLoading: _isLoading }: PartnerTabProps) {
       if (data.success) {
         // Refresh partners list
         await fetchPartners();
-        
+
         // Reset form and close modal
         setFormData({
           name: "",
@@ -217,7 +217,14 @@ export function PartnersTab({ isLoading: _isLoading }: PartnerTabProps) {
   return (
     <div className="min-h-screen pb-6 dark:bg-neutral-900 dark:text-gray-100">
       {/* Header */}
-      <div className="rounded-b-3xl bg-gradient-to-br from-[#3D3066] via-[#5C4E7F] to-[#8B7FA8] px-6 pt-6 pb-6">
+      <div className="rounded-b-3xl 
+  bg-gradient-to-br 
+  from-[#4B3B80] 
+  via-[#3A2C66] 
+  to-[#1F173D] 
+  px-6 pt-6 pb-8
+  shadow-[0_10px_40px_rgba(31,23,61,0.35)]">
+
         <div className="mb-4 flex items-center justify-between">
           <img src="01.jpg" alt="Zold Logo" className="h-16 rounded-xl" />
           {userRole === 'ADMIN' && (
@@ -271,7 +278,7 @@ export function PartnersTab({ isLoading: _isLoading }: PartnerTabProps) {
         {error && (
           <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 dark:bg-red-900/20 dark:border-red-800">
             <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
-            <button 
+            <button
               onClick={() => setError(null)}
               className="mt-2 text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
             >

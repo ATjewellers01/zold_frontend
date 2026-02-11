@@ -522,6 +522,7 @@ export function MainApp({ user }: MainAppProps) {
             >
               <Banknote className="h-6 w-6" />
               <span className="text-xs">Loans</span>
+
             </button>
 
             <button

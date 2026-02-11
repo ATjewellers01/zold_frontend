@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calculator, TrendingUp, Calendar, Coins, ArrowRight, X } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
@@ -10,6 +10,11 @@ export function SIPCalculator({ onClose }: SIPCalculatorProps) {
   const [monthlyInvestment, setMonthlyInvestment] = useState(5000);
   const [duration, setDuration] = useState(12); // months
   const [expectedReturn, setExpectedReturn] = useState(12); // annual %
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Calculate returns
   const totalInvestment = monthlyInvestment * duration;
@@ -161,35 +166,41 @@ export function SIPCalculator({ onClose }: SIPCalculatorProps) {
             <h3 className="mb-4 text-gray-900 dark:text-white">
               Investment Breakdown
             </h3>
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={chartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value) =>
-                      typeof value === "number"
-                        ? `₹${value.toLocaleString()}`
-                        : ""
-                    }
-                    contentStyle={{
-                      backgroundColor: "#ffffff",
-                      borderColor: "#e5e7eb",
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="h-48" style={{ minHeight: '192px' }}>
+              {isMounted ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value) =>
+                        typeof value === "number"
+                          ? `₹${value.toLocaleString()}`
+                          : ""
+                      }
+                      contentStyle={{
+                        backgroundColor: "#ffffff",
+                        borderColor: "#e5e7eb",
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex h-full items-center justify-center text-gray-400">
+                  <Calculator className="h-8 w-8 animate-pulse" />
+                </div>
+              )}
             </div>
             <div className="mt-2 flex items-center justify-center gap-6">
               <div className="flex items-center gap-2">

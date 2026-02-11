@@ -1,10 +1,10 @@
 "use client";
 
 import { ProfileTab } from "@/components/tabs/ProfileTab";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 
-export default function ProfilePage() {
+function ProfileContent() {
     const [user, setUser] = useState<any>(null);
     const router = useRouter();
 
@@ -30,4 +30,12 @@ export default function ProfilePage() {
     };
 
     return <ProfileTab user={user} onLogout={handleLogout} />;
+}
+
+export default function ProfilePage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-[#4B3B80] via-[#3A2C66] to-[#1F173D]" />}>
+            <ProfileContent />
+        </Suspense>
+    );
 }

@@ -34,6 +34,8 @@ interface Transaction {
 }
 
 export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
+
+
   const router = useRouter();
   const [step, setStep] = useState<Step>("amount");
   const [inputMode, setInputMode] = useState<"rupees" | "grams">("rupees");
@@ -46,6 +48,30 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const [amountInr, setAmountInr] = useState("");
+  const [amountGm, setAmountGm] = useState("");
+  const [activeInput, setActiveInput] = useState<"inr" | "gm">("inr");
+
+
+
+  const onInrChange = (v: string) => {
+    if (Number(v) < 0) return;
+    setActiveInput("inr");
+    setAmountInr(v);
+    setAmountGm(v ? (Number(v) / goldBuyPrice).toFixed(4) : "");
+  };
+
+  const onGmChange = (v: string) => {
+    if (Number(v) < 0) return;
+    setActiveInput("gm");
+    setAmountGm(v);
+    setAmountInr(v ? (Number(v) * goldBuyPrice).toFixed(2) : "");
+  };
+
+  const swapInputs = () => {
+    setActiveInput((p) => (p === "inr" ? "gm" : "inr"));
+  };
 
   const gstRate = 3;
 
@@ -166,7 +192,7 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
 
     const socket: Socket = io(
       process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
-        "http://localhost:5001",
+      "http://localhost:5001",
       {
         transports: ["websocket", "polling"],
         reconnection: true,
@@ -343,11 +369,10 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
                     setInputMode("rupees");
                     setAmount("");
                   }}
-                  className={`rounded-lg py-2.5 text-xs font-semibold transition-all sm:rounded-xl sm:py-3 sm:text-sm ${
-                    inputMode === "rupees"
-                      ? "bg-[#FCDE5B] text-[#1a1a2e] shadow-md"
-                      : "border border-gray-200 bg-white text-gray-700 hover:border-[#FCDE5B] dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
-                  }`}
+                  className={`rounded-lg py-2.5 text-xs font-semibold transition-all sm:rounded-xl sm:py-3 sm:text-sm ${inputMode === "rupees"
+                    ? "bg-[#FCDE5B] text-[#1a1a2e] shadow-md"
+                    : "border border-gray-200 bg-white text-gray-700 hover:border-[#FCDE5B] dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+                    }`}
                 >
                   Buy in ₹
                 </button>
@@ -356,11 +381,10 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
                     setInputMode("grams");
                     setAmount("");
                   }}
-                  className={`rounded-lg py-2.5 text-xs font-semibold transition-all sm:rounded-xl sm:py-3 sm:text-sm ${
-                    inputMode === "grams"
-                      ? "bg-[#FCDE5B] text-[#1a1a2e] shadow-md"
-                      : "border border-gray-200 bg-white text-gray-700 hover:border-[#FCDE5B] dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
-                  }`}
+                  className={`rounded-lg py-2.5 text-xs font-semibold transition-all sm:rounded-xl sm:py-3 sm:text-sm ${inputMode === "grams"
+                    ? "bg-[#FCDE5B] text-[#1a1a2e] shadow-md"
+                    : "border border-gray-200 bg-white text-gray-700 hover:border-[#FCDE5B] dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+                    }`}
                 >
                   Buy in Grams
                 </button>
@@ -369,7 +393,7 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
               {/* Buy Coins CTA - Navigate to separate page */}
               <button
                 onClick={() => router.push("/buy-coins")}
-                className="mb-4 flex w-full items-center justify-between rounded-xl border-2 border-[#D4AF37]/30 bg-linear-to-r from-[#fafafa] to-[#fef9e6] p-4 transition-all hover:border-[#D4AF37] hover:shadow-md active:scale-[0.99] sm:mb-6 sm:rounded-2xl sm:p-5 dark:from-[#1a1a1a] dark:to-[#2a2415] dark:border-[#D4AF37]/50"
+                className="mb-4 flex w-full lg:w-[205%] items-center justify-between rounded-xl border-2 border-[#D4AF37]/30 bg-linear-to-r from-[#fafafa] to-[#fef9e6] p-4 transition-all hover:border-[#D4AF37] hover:shadow-md active:scale-[0.99] sm:mb-6 sm:rounded-2xl sm:p-5 dark:from-[#1a1a1a] dark:to-[#2a2415] dark:border-[#D4AF37]/50"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-[#f5e6a3] to-[#d4af37] sm:h-12 sm:w-12">
@@ -387,55 +411,95 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
                 <ChevronRight className="h-5 w-5 text-[#D4AF37]" />
               </button>
 
-              {/* Amount Input - Digital Gold (Responsive) */}
-              <div className="mb-4 rounded-xl border border-gray-100 bg-white p-4 shadow-lg sm:mb-6 sm:rounded-2xl sm:p-6 dark:border-neutral-700 dark:bg-neutral-800">
-                <label className="mb-2 block text-sm font-medium text-gray-700 sm:mb-3 dark:text-neutral-300">
-                  {inputMode === "rupees"
-                    ? "Enter Amount (₹)"
-                    : "Enter Weight (grams)"}
-                </label>
-                <input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder={inputMode === "rupees" ? "1000" : "1.0"}
-                  step={inputMode === "rupees" ? "100" : "0.1"}
-                  className="w-full rounded-lg border-2 border-gray-200 px-3 py-3 text-lg font-semibold text-gray-800 transition-all focus:border-transparent focus:ring-2 focus:ring-[#FCDE5B] focus:outline-none sm:rounded-xl sm:px-4 sm:py-4 sm:text-xl dark:border-neutral-600 dark:bg-neutral-700 dark:text-white"
-                />
-                <p className="mt-1.5 text-xs text-gray-500 sm:mt-2 sm:text-sm dark:text-neutral-500">
-                  Minimum: ₹100
-                </p>
 
+
+              <div>
+                {/* Info Box - Responsive */}
+                <div className="mb-4 rounded-lg lg:w-[205%]  border border-blue-200 bg-blue-50 p-3 sm:mb-6 sm:rounded-xl sm:p-4 dark:border-blue-800 dark:bg-blue-900/20">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 sm:h-5 sm:w-5 dark:text-blue-400" />
+                    <div className="text-xs sm:text-sm">
+                      <p className="mb-0.5 font-medium text-blue-900 sm:mb-1 dark:text-blue-300">
+                        Purity: 24K / 999
+                      </p>
+                      <p className="text-blue-700 dark:text-blue-400">
+                        Stored securely in Zold Vault with AT Plus Jewellers
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Price Breakdown - Digital Gold (Responsive) */}
                 {amount && (
-                  <div className="mt-3 rounded-lg border border-[#FCDE5B]/30 bg-[#FCDE5B]/10 p-3 sm:mt-4 sm:rounded-xl sm:p-4">
-                    <p className="mb-0.5 text-xs text-gray-600 sm:mb-1 sm:text-sm dark:text-neutral-400">
-                      You will get
-                    </p>
-                    {inputMode === "rupees" ? (
-                      <p className="text-xl font-bold text-[#1a1a2e] sm:text-2xl dark:text-[#FCDE5B]">
-                        {grams.toFixed(4)} grams
-                      </p>
-                    ) : (
-                      <p className="text-xl font-bold text-[#1a1a2e] sm:text-2xl dark:text-[#FCDE5B]">
-                        ₹{rupees.toFixed(2)}
-                      </p>
-                    )}
+                  <div className="mb-4 rounded-xl border border-gray-100 bg-white p-4 shadow-lg sm:mb-6 sm:rounded-2xl sm:p-6 dark:border-neutral-700 dark:bg-neutral-800">
+                    <h3 className="mb-3 text-sm font-bold text-gray-900 sm:mb-4 sm:text-base dark:text-white">
+                      Price Breakdown
+                    </h3>
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-xs text-gray-600 sm:text-sm dark:text-neutral-400">
+                          Gold Value ({grams.toFixed(4)}g)
+                        </span>
+                        <span className="text-xs font-medium text-gray-900 sm:text-sm dark:text-white">
+                          ₹{rupees.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-xs text-gray-600 sm:text-sm dark:text-neutral-400">
+                          GST ({gstRate}%)
+                        </span>
+                        <span className="text-xs font-medium text-gray-900 sm:text-sm dark:text-white">
+                          ₹{gst.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between border-t border-gray-200 pt-2 sm:pt-3 dark:border-neutral-700">
+                        <span className="text-sm font-bold text-gray-900 dark:text-white">
+                          Total Amount
+                        </span>
+                        <span className="text-lg font-bold text-[#1a1a2e] sm:text-xl dark:text-[#FCDE5B]">
+                          ₹{totalAmount.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 )}
+
+                {/* Error Message */}
+                {error && (
+                  <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 sm:mb-6 sm:rounded-xl sm:p-4 dark:border-red-800 dark:bg-red-900/20">
+                    <p className="text-xs font-medium text-red-800 sm:text-sm dark:text-red-400">
+                      {error}
+                    </p>
+                  </div>
+                )}
+
+                {/* Buy Button - Responsive */}
+                <button
+                  onClick={() => handleBuyGold()}
+                  disabled={
+                    !amount || rupees < 100 || totalAmount > testWalletBalance || loading
+                  }
+                  className="w-full rounded-lg bg-[#FCDE5B] py-3.5 text-base font-bold text-[#1a1a2e] shadow-lg transition-all hover:bg-[#f5d347] hover:shadow-xl active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 sm:rounded-xl sm:py-4 sm:text-lg dark:disabled:bg-neutral-700"
+                >
+                  {loading
+                    ? "Processing..."
+                    : totalAmount > testWalletBalance
+                      ? "Insufficient Balance"
+                      : `Buy Gold • ₹${totalAmount.toFixed(0)}`}
+                </button>
               </div>
 
               {/* Quick Amount Buttons - Responsive */}
               {inputMode === "rupees" && (
-                <div className="mb-4 grid grid-cols-4 gap-1.5 sm:mb-6 sm:gap-3">
+                <div className="mb-4 grid grid-cols-4 gap-1.5 sm:mb-6 sm:gap-3 mt-5">
                   {[500, 1000, 5000, 10000].map((amt) => (
                     <button
                       key={amt}
                       onClick={() => setAmount(amt.toString())}
-                      className={`rounded-lg py-2.5 text-xs font-semibold transition-all sm:rounded-xl sm:py-3 sm:text-sm ${
-                        amount === amt.toString()
-                          ? "bg-[#FCDE5B] text-[#1a1a2e] shadow-md"
-                          : "border border-gray-200 bg-white text-gray-700 hover:border-[#FCDE5B] dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
-                      }`}
+                      className={`rounded-lg py-2.5 text-xs font-semibold transition-all sm:rounded-xl sm:py-3 sm:text-sm ${amount === amt.toString()
+                        ? "bg-[#FCDE5B] text-[#1a1a2e] shadow-md"
+                        : "border border-gray-200 bg-white text-gray-700 hover:border-[#FCDE5B] dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+                        }`}
                     >
                       ₹{amt >= 1000 ? `${amt / 1000}K` : amt}
                     </button>
@@ -445,81 +509,59 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
             </div>
 
             {/* Right Column - Info & Breakdown */}
-            <div>
-              {/* Info Box - Responsive */}
-              <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 sm:mb-6 sm:rounded-xl sm:p-4 dark:border-blue-800 dark:bg-blue-900/20">
-                <div className="flex items-start gap-2 sm:gap-3">
-                  <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 sm:h-5 sm:w-5 dark:text-blue-400" />
-                  <div className="text-xs sm:text-sm">
-                    <p className="mb-0.5 font-medium text-blue-900 sm:mb-1 dark:text-blue-300">
-                      Purity: 24K / 999
-                    </p>
-                    <p className="text-blue-700 dark:text-blue-400">
-                      Stored securely in Zold Vault with AT Plus Jewellers
-                    </p>
-                  </div>
+            {/* Amount Input - Digital Gold (Responsive) */}
+            <div className="mb-4 h-[20vh] rounded-xl border border-gray-100 bg-white p-4 shadow-lg sm:mb-6 sm:rounded-2xl sm:p-6 dark:border-neutral-700 dark:bg-neutral-800">
+
+
+              <label className="mb-4 block text-sm font-medium text-gray-700 dark:text-neutral-300">
+                Enter Amount
+              </label>
+
+              <div className="flex items-center gap-3">
+
+                {/* INR */}
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-semibold text-gray-500">
+                    ₹
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={amountInr}
+                    onChange={(e) => onInrChange(e.target.value)}
+                    placeholder="100"
+                    className="w-full rounded-xl border px-8 py-3 font-semibold text-gray-700"
+                  />
                 </div>
+
+                {/* Swap */}
+                <button
+                  onClick={swapInputs}
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FCDE5B] font-bold shadow"
+                >
+                  ⇆
+                </button>
+
+                {/* Grams */}
+                <div className="relative flex-1">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 font-semibold text-gray-500">
+                    gm
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={amountGm}
+                    onChange={(e) => onGmChange(e.target.value)}
+                    placeholder="0.00"
+                    step="0.0001"
+                    className="w-full rounded-xl border px-4 py-3 pr-12 font-semibold text-gray-700"
+                  />
+                </div>
+
               </div>
-
-              {/* Price Breakdown - Digital Gold (Responsive) */}
-              {amount && (
-                <div className="mb-4 rounded-xl border border-gray-100 bg-white p-4 shadow-lg sm:mb-6 sm:rounded-2xl sm:p-6 dark:border-neutral-700 dark:bg-neutral-800">
-                  <h3 className="mb-3 text-sm font-bold text-gray-900 sm:mb-4 sm:text-base dark:text-white">
-                    Price Breakdown
-                  </h3>
-                  <div className="space-y-2 sm:space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-xs text-gray-600 sm:text-sm dark:text-neutral-400">
-                        Gold Value ({grams.toFixed(4)}g)
-                      </span>
-                      <span className="text-xs font-medium text-gray-900 sm:text-sm dark:text-white">
-                        ₹{rupees.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-xs text-gray-600 sm:text-sm dark:text-neutral-400">
-                        GST ({gstRate}%)
-                      </span>
-                      <span className="text-xs font-medium text-gray-900 sm:text-sm dark:text-white">
-                        ₹{gst.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between border-t border-gray-200 pt-2 sm:pt-3 dark:border-neutral-700">
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">
-                        Total Amount
-                      </span>
-                      <span className="text-lg font-bold text-[#1a1a2e] sm:text-xl dark:text-[#FCDE5B]">
-                        ₹{totalAmount.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Error Message */}
-              {error && (
-                <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 sm:mb-6 sm:rounded-xl sm:p-4 dark:border-red-800 dark:bg-red-900/20">
-                  <p className="text-xs font-medium text-red-800 sm:text-sm dark:text-red-400">
-                    {error}
-                  </p>
-                </div>
-              )}
-
-              {/* Buy Button - Responsive */}
-              <button
-                onClick={() => handleBuyGold()}
-                disabled={
-                  !amount || rupees < 100 || totalAmount > testWalletBalance || loading
-                }
-                className="w-full rounded-lg bg-[#FCDE5B] py-3.5 text-base font-bold text-[#1a1a2e] shadow-lg transition-all hover:bg-[#f5d347] hover:shadow-xl active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 sm:rounded-xl sm:py-4 sm:text-lg dark:disabled:bg-neutral-700"
-              >
-                {loading
-                  ? "Processing..."
-                  : totalAmount > testWalletBalance
-                    ? "Insufficient Balance"
-                    : `Buy Gold • ₹${totalAmount.toFixed(0)}`}
-              </button>
             </div>
+
+
           </div>
         )}
 

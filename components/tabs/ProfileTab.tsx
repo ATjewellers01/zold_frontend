@@ -165,7 +165,14 @@ export function ProfileTab({ user, onLogout, isLoading }: ProfileTabProps) {
     <>
       <div className="min-h-screen overflow-x-hidden pb-6 dark:bg-neutral-900 dark:text-gray-100">
         {/* Header */}
-        <div className="rounded-b-3xl bg-gradient-to-br from-[#3D3066] via-[#5C4E7F] to-[#8B7FA8] px-6 pt-6 pb-8">
+        <div className="rounded-b-3xl 
+  bg-gradient-to-br 
+  from-[#4B3B80] 
+  via-[#3A2C66] 
+  to-[#1F173D] 
+  px-6 pt-6 pb-8
+  shadow-[0_10px_40px_rgba(31,23,61,0.35)]">
+
           <h1 className="mb-6 text-white">Profile</h1>
 
           {/* User Info Card */}
@@ -186,13 +193,12 @@ export function ProfileTab({ user, onLogout, isLoading }: ProfileTabProps) {
 
             {/* KYC Status */}
             <div
-              className={`flex items-center gap-2 rounded-lg p-3 ${
-                kycStatus === "verified"
-                  ? "border border-green-300/30 bg-green-500/20 dark:border-green-700/50 dark:bg-green-900/30"
-                  : kycStatus === "pending"
-                    ? "border border-yellow-300/30 bg-yellow-500/20 dark:border-yellow-700/50 dark:bg-yellow-900/30"
-                    : "border border-red-300/30 bg-red-500/20 dark:border-red-700/50 dark:bg-red-900/30"
-              }`}
+              className={`flex items-center gap-2 rounded-lg p-3 ${kycStatus === "verified"
+                ? "border border-green-300/30 bg-green-500/20 dark:border-green-700/50 dark:bg-green-900/30"
+                : kycStatus === "pending"
+                  ? "border border-yellow-300/30 bg-yellow-500/20 dark:border-yellow-700/50 dark:bg-yellow-900/30"
+                  : "border border-red-300/30 bg-red-500/20 dark:border-red-700/50 dark:bg-red-900/30"
+                }`}
             >
               {kycStatus === "verified" ? (
                 <>
@@ -220,7 +226,7 @@ export function ProfileTab({ user, onLogout, isLoading }: ProfileTabProps) {
           </div>
         </div>
 
-        <div className="-mt-4 px-6">
+        <div className="mt-6 px-6">
           {/* Account Section */}
           <div
             className={cn(
@@ -334,19 +340,17 @@ export function ProfileTab({ user, onLogout, isLoading }: ProfileTabProps) {
                 </div>
                 <button
                   onClick={handleThemeToggle}
-                  className={`relative h-6 w-12 rounded-full transition-colors ${
-                    darkMode
-                      ? "bg-[#8b6fee] dark:bg-[#8b6fee]"
-                      : "bg-gray-300 dark:bg-neutral-600"
-                  }`}
+                  className={`relative h-6 w-12 rounded-full transition-colors ${darkMode
+                    ? "bg-[#8b6fee] dark:bg-[#8b6fee]"
+                    : "bg-gray-300 dark:bg-neutral-600"
+                    }`}
                   aria-label={
                     darkMode ? "Switch to light mode" : "Switch to dark mode"
                   }
                 >
                   <div
-                    className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-transform ${
-                      darkMode ? "left-1 translate-x-7" : "left-1"
-                    }`}
+                    className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-transform ${darkMode ? "left-1 translate-x-7" : "left-1"
+                      }`}
                   />
                 </button>
               </div>

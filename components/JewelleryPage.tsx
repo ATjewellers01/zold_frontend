@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import { 
-  X, Gem, Sparkles, CheckCircle, 
+import {
+  X, Gem, Sparkles, CheckCircle,
   Info, Heart, ShoppingBag, Clock,
   ChevronRight, Filter, Search, Star,
   Truck, Shield, RefreshCw, Calendar,
@@ -48,7 +48,7 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
 
   const userGoldBalance = 12.547; // grams
   const currentGoldPrice = 6245.50; // per gram
-  
+
   const categories = [
     { id: 'all', name: 'All Jewellery', icon: Gem },
     { id: 'rings', name: 'Rings', icon: Gem },
@@ -154,25 +154,25 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
     { id: 3, name: 'AT Plus Karol Bagh', address: 'Karol Bagh, Delhi', distance: '7.2 km' },
   ];
 
-  const filteredProducts = selectedCategory === 'all' 
+  const filteredProducts = selectedCategory === 'all'
     ? jewelleryProducts
     : jewelleryProducts.filter(product => product.category === selectedCategory);
 
-  const searchedProducts = searchQuery 
-    ? filteredProducts.filter(product => 
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+  const searchedProducts = searchQuery
+    ? filteredProducts.filter(product =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : filteredProducts;
 
   // Calculate price if product is selected
   const calculateProductPrice = () => {
     if (!selectedProduct) return 0;
-    
+
     const goldValue = selectedProduct.goldWeight * currentGoldPrice;
     const makingCharges = selectedProduct.makingCharges;
     const totalValue = goldValue + makingCharges;
-    
+
     // Apply discount if available
     return selectedProduct.discountPrice || totalValue;
   };
@@ -251,11 +251,10 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
                     <button
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id as Category)}
-                      className={`flex flex-col items-center justify-center p-4 rounded-xl transition-all ${
-                        isSelected
-                          ? 'bg-gradient-to-br from-[#3D3066] to-[#5C4E7F] text-white shadow-lg'
-                          : 'bg-white dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700 hover:border-gray-300 dark:hover:border-neutral-600'
-                      }`}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl transition-all ${isSelected
+                        ? 'bg-gradient-to-br from-[#3D3066] to-[#5C4E7F] text-white shadow-lg'
+                        : 'bg-white dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700 hover:border-gray-300 dark:hover:border-neutral-600'
+                        }`}
                     >
                       <Icon className="w-6 h-6 mb-2" />
                       <span className="text-xs font-medium">{category.name}</span>
@@ -269,8 +268,8 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
             <div className="mb-8">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-gray-900 dark:text-white">
-                  {selectedCategory === 'all' ? 'All Jewellery' : 
-                   selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}
+                  {selectedCategory === 'all' ? 'All Jewellery' :
+                    selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}
                   <span className="text-gray-500 dark:text-neutral-400 text-sm font-normal ml-2">
                     ({searchedProducts.length} items)
                   </span>
@@ -333,11 +332,10 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`w-3 h-3 ${
-                                  i < Math.floor(product.rating)
-                                    ? 'text-yellow-400 fill-yellow-400'
-                                    : 'text-gray-300 dark:text-neutral-600'
-                                }`}
+                                className={`w-3 h-3 ${i < Math.floor(product.rating)
+                                  ? 'text-yellow-400 fill-yellow-400'
+                                  : 'text-gray-300 dark:text-neutral-600'
+                                  }`}
                               />
                             ))}
                           </div>
@@ -434,7 +432,7 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
                   <div className="bg-gradient-to-br from-yellow-100 to-yellow-50 dark:from-yellow-900/20 dark:to-yellow-800/10 rounded-xl h-64 flex items-center justify-center">
                     <span className="text-6xl">{selectedProduct.image}</span>
                   </div>
-                  
+
                   {/* Product Badges */}
                   <div className="flex gap-2 mt-4">
                     {selectedProduct.isNew && (
@@ -465,11 +463,10 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-4 h-4 ${
-                              i < Math.floor(selectedProduct.rating)
-                                ? 'text-yellow-400 fill-yellow-400'
-                                : 'text-gray-300 dark:text-neutral-600'
-                            }`}
+                            className={`w-4 h-4 ${i < Math.floor(selectedProduct.rating)
+                              ? 'text-yellow-400 fill-yellow-400'
+                              : 'text-gray-300 dark:text-neutral-600'
+                              }`}
                           />
                         ))}
                       </div>
@@ -485,19 +482,19 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
                       <span className="text-gray-600 dark:text-neutral-400">Gold Weight</span>
                       <span className="text-gray-900 dark:text-white">{selectedProduct.goldWeight} grams</span>
                     </div>
-                    
+
                     <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-neutral-700">
                       <span className="text-gray-600 dark:text-neutral-400">Making Charges</span>
                       <span className="text-gray-900 dark:text-white">₹{selectedProduct.makingCharges.toLocaleString()}</span>
                     </div>
-                    
+
                     {selectedProduct.diamonds && (
                       <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-neutral-700">
                         <span className="text-gray-600 dark:text-neutral-400">Diamonds</span>
                         <span className="text-gray-900 dark:text-white">{selectedProduct.diamonds} carats</span>
                       </div>
                     )}
-                    
+
                     <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-neutral-700">
                       <span className="text-gray-600 dark:text-neutral-400">Delivery Time</span>
                       <span className="text-gray-900 dark:text-white">{selectedProduct.deliveryTime}</span>
@@ -571,11 +568,10 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`py-3 rounded-lg border-2 transition-colors ${
-                        selectedSize === size
-                          ? 'border-[#3D3066] dark:border-[#8B7FA8] bg-[#F3F1F7] dark:bg-neutral-700 text-[#3D3066] dark:text-[#8B7FA8]'
-                          : 'border-gray-200 dark:border-neutral-700 text-gray-700 dark:text-neutral-300 hover:border-gray-300 dark:hover:border-neutral-600'
-                      }`}
+                      className={`py-3 rounded-lg border-2 transition-colors ${selectedSize === size
+                        ? 'border-[#3D3066] dark:border-[#8B7FA8] bg-[#F3F1F7] dark:bg-neutral-700 text-[#3D3066] dark:text-[#8B7FA8]'
+                        : 'border-gray-200 dark:border-neutral-700 text-gray-700 dark:text-neutral-300 hover:border-gray-300 dark:hover:border-neutral-600'
+                        }`}
                     >
                       {size}
                     </button>
@@ -601,7 +597,7 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
                       Max: {maxGoldToUse.toFixed(2)}g
                     </span>
                   </div>
-                  
+
                   {/* Gold Slider */}
                   <input
                     type="range"
@@ -612,7 +608,7 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
                     onChange={(e) => setGoldToUse(parseFloat(e.target.value))}
                     className="w-full h-2 bg-gray-200 dark:bg-neutral-600 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#3D3066] dark:[&::-webkit-slider-thumb]:bg-[#8B7FA8]"
                   />
-                  
+
                   <div className="flex justify-between text-sm text-gray-500 dark:text-neutral-400 mt-2">
                     <span>0g</span>
                     <span className="text-gray-900 dark:text-white font-medium">{goldToUse.toFixed(1)}g</span>
@@ -670,14 +666,14 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
                       ₹{calculateProductPrice().toLocaleString()}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-neutral-400">Gold Used ({goldToUse}g)</span>
                     <span className="text-green-600 dark:text-green-400">
                       - ₹{calculateSavingFromGold().toLocaleString()}
                     </span>
                   </div>
-                  
+
                   {selectedProduct.discountPrice && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-neutral-400">Discount</span>
@@ -686,7 +682,7 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
                       </span>
                     </div>
                   )}
-                  
+
                   <div className="border-t border-gray-300 dark:border-neutral-600 pt-3 flex justify-between">
                     <span className="text-gray-900 dark:text-white font-semibold">Final Price</span>
                     <span className="text-[#3D3066] dark:text-[#8B7FA8] font-bold text-xl">
@@ -726,18 +722,16 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
                 <div className="space-y-3">
                   <button
                     onClick={() => setDeliveryOption('home')}
-                    className={`w-full p-4 rounded-xl border-2 transition-colors text-left ${
-                      deliveryOption === 'home'
-                        ? 'border-[#3D3066] dark:border-[#8B7FA8] bg-[#F3F1F7] dark:bg-neutral-700'
-                        : 'border-gray-200 dark:border-neutral-700 hover:border-gray-300 dark:hover:border-neutral-600'
-                    }`}
+                    className={`w-full p-4 rounded-xl border-2 transition-colors text-left ${deliveryOption === 'home'
+                      ? 'border-[#3D3066] dark:border-[#8B7FA8] bg-[#F3F1F7] dark:bg-neutral-700'
+                      : 'border-gray-200 dark:border-neutral-700 hover:border-gray-300 dark:hover:border-neutral-600'
+                      }`}
                   >
                     <div className="flex items-center gap-3 mb-2">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        deliveryOption === 'home' 
-                          ? 'border-[#3D3066] dark:border-[#8B7FA8]' 
-                          : 'border-gray-300 dark:border-neutral-600'
-                      }`}>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${deliveryOption === 'home'
+                        ? 'border-[#3D3066] dark:border-[#8B7FA8]'
+                        : 'border-gray-300 dark:border-neutral-600'
+                        }`}>
                         {deliveryOption === 'home' && (
                           <div className="w-3 h-3 rounded-full bg-[#3D3066] dark:bg-[#8B7FA8]" />
                         )}
@@ -754,18 +748,16 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
 
                   <button
                     onClick={() => setDeliveryOption('store')}
-                    className={`w-full p-4 rounded-xl border-2 transition-colors text-left ${
-                      deliveryOption === 'store'
-                        ? 'border-[#3D3066] dark:border-[#8B7FA8] bg-[#F3F1F7] dark:bg-neutral-700'
-                        : 'border-gray-200 dark:border-neutral-700 hover:border-gray-300 dark:hover:border-neutral-600'
-                    }`}
+                    className={`w-full p-4 rounded-xl border-2 transition-colors text-left ${deliveryOption === 'store'
+                      ? 'border-[#3D3066] dark:border-[#8B7FA8] bg-[#F3F1F7] dark:bg-neutral-700'
+                      : 'border-gray-200 dark:border-neutral-700 hover:border-gray-300 dark:hover:border-neutral-600'
+                      }`}
                   >
                     <div className="flex items-center gap-3 mb-2">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        deliveryOption === 'store' 
-                          ? 'border-[#3D3066] dark:border-[#8B7FA8]' 
-                          : 'border-gray-300 dark:border-neutral-600'
-                      }`}>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${deliveryOption === 'store'
+                        ? 'border-[#3D3066] dark:border-[#8B7FA8]'
+                        : 'border-gray-300 dark:border-neutral-600'
+                        }`}>
                         {deliveryOption === 'store' && (
                           <div className="w-3 h-3 rounded-full bg-[#3D3066] dark:bg-[#8B7FA8]" />
                         )}
@@ -804,18 +796,16 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
                       <button
                         key={store.id}
                         onClick={() => setSelectedStore(store.id)}
-                        className={`w-full p-4 rounded-lg border-2 transition-colors text-left ${
-                          selectedStore === store.id
-                            ? 'border-[#3D3066] dark:border-[#8B7FA8] bg-[#F3F1F7] dark:bg-neutral-700'
-                            : 'border-gray-200 dark:border-neutral-700 hover:border-gray-300 dark:hover:border-neutral-600'
-                        }`}
+                        className={`w-full p-4 rounded-lg border-2 transition-colors text-left ${selectedStore === store.id
+                          ? 'border-[#3D3066] dark:border-[#8B7FA8] bg-[#F3F1F7] dark:bg-neutral-700'
+                          : 'border-gray-200 dark:border-neutral-700 hover:border-gray-300 dark:hover:border-neutral-600'
+                          }`}
                       >
                         <div className="flex items-center gap-3 mb-2">
-                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                            selectedStore === store.id 
-                              ? 'border-[#3D3066] dark:border-[#8B7FA8]' 
-                              : 'border-gray-300 dark:border-neutral-600'
-                          }`}>
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedStore === store.id
+                            ? 'border-[#3D3066] dark:border-[#8B7FA8]'
+                            : 'border-gray-300 dark:border-neutral-600'
+                            }`}>
                             {selectedStore === store.id && (
                               <div className="w-3 h-3 rounded-full bg-[#3D3066] dark:bg-[#8B7FA8]" />
                             )}
@@ -890,11 +880,11 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
                   <p className="text-gray-600 dark:text-neutral-400 text-sm mb-1">Order Number</p>
                   <p className="text-gray-900 dark:text-white">#ZOLD-{Math.floor(Math.random() * 10000)}</p>
                 </div>
-                
+
                 <div className="bg-gray-50 dark:bg-neutral-800 rounded-lg p-4">
                   <p className="text-gray-600 dark:text-neutral-400 text-sm mb-1">Expected Delivery</p>
                   <p className="text-gray-900 dark:text-white">
-                    {selectedProduct.deliveryTime} 
+                    {selectedProduct.deliveryTime}
                     {deliveryOption === 'store' ? ' (Store Pickup)' : ' (Home Delivery)'}
                   </p>
                 </div>
@@ -929,3 +919,5 @@ export function JewelleryFlow({ onClose }: JewelleryFlowProps) {
     </div>
   );
 }
+
+export default JewelleryFlow;

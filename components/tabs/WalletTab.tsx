@@ -201,7 +201,15 @@ export function WalletTab({ onOpenManageSIP, onBack }: WalletTabProps) {
   return (
     <div className="min-h-screen pb-6 dark:bg-neutral-900 dark:text-gray-100">
       {/* Header */}
-      <div className="rounded-b-3xl bg-gradient-to-br from-[#3D3066] via-[#5C4E7F] to-[#8B7FA8] px-6 pt-6 pb-8">
+      <div className="rounded-b-3xl 
+  bg-gradient-to-br
+  from-[#D4AF37] 
+  via-[#B8960C] 
+  to-[#7A5A00]
+  px-6 pt-6 pb-6
+  shadow-[0_10px_40px_rgba(122,90,0,0.35)]">
+
+
         <div className="mb-6 flex items-center gap-4">
           {onBack && (
             <button
@@ -256,11 +264,10 @@ export function WalletTab({ onOpenManageSIP, onBack }: WalletTabProps) {
               <button
                 key={period}
                 onClick={() => setGraphPeriod(period)}
-                className={`rounded-lg px-3 py-1 text-sm transition-colors ${
-                  graphPeriod === period
-                    ? "bg-white text-[#3D3066] dark:bg-neutral-800 dark:text-white"
-                    : "bg-white/20 text-white hover:bg-white/30 dark:bg-white/10 dark:hover:bg-white/20"
-                }`}
+                className={`rounded-lg px-3 py-1 text-sm transition-colors ${graphPeriod === period
+                  ? "bg-[#FCDE5B] text-[#1a1a1a] dark:bg-neutral-800 dark:text-white"
+                  : "bg-white/20 text-white hover:bg-white/30 dark:bg-white/10 dark:hover:bg-white/20"
+                  }`}
               >
                 {period}
               </button>
@@ -285,7 +292,7 @@ export function WalletTab({ onOpenManageSIP, onBack }: WalletTabProps) {
         </div>
       </div>
 
-      <div className="-mt-4 px-6">
+      <div className="mt-6 px-6">
         {/* Breakdown Section */}
         <div className="mb-6 rounded-2xl bg-white p-4 shadow-lg dark:bg-neutral-800 dark:shadow-neutral-900/50">
           <h3 className="mb-4 text-black dark:text-white">Gold Breakdown</h3>
@@ -381,7 +388,8 @@ export function WalletTab({ onOpenManageSIP, onBack }: WalletTabProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search transactions..."
-                className="w-full rounded-lg border border-gray-200 py-2 pr-10 pl-10 text-sm text-gray-800 focus:border-[#3D3066] focus:outline-none dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:focus:border-[#8B7FA8]"
+                className="w-full rounded-lg border border-gray-200 py-2 pr-10 pl-10 text-sm text-gray-800 focus:border-[#D4AF37]
+ focus:outline-none dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:focus:border-[#8B7FA8]"
               />
               {searchQuery && (
                 <button
@@ -448,11 +456,10 @@ export function WalletTab({ onOpenManageSIP, onBack }: WalletTabProps) {
               <button
                 key={value}
                 onClick={() => setSelectedFilter(value)}
-                className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm whitespace-nowrap transition-colors ${
-                  selectedFilter === value
-                    ? "bg-[#3D3066] text-white dark:bg-[#4D3F7F]"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-600"
-                }`}
+                className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm whitespace-nowrap transition-colors ${selectedFilter === value
+                  ? "bg-[#3D3066] text-white dark:bg-[#4D3F7F]"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-600"
+                  }`}
               >
                 {Icon && <Icon className="h-4 w-4" />}
                 {label}
@@ -464,24 +471,24 @@ export function WalletTab({ onOpenManageSIP, onBack }: WalletTabProps) {
           {(searchQuery ||
             dateFilter !== "all" ||
             selectedFilter !== "all") && (
-            <div className="mb-3 flex items-center justify-between text-sm">
-              <p className="text-gray-600 dark:text-neutral-400">
-                Found {filteredTransactions.length} transaction
-                {filteredTransactions.length !== 1 ? "s" : ""}
-              </p>
-              <button
-                onClick={() => {
-                  setSearchQuery("");
-                  setDateFilter("all");
-                  setSelectedFilter("all");
-                }}
-                className="flex items-center gap-1 text-[#3D3066] hover:text-[#5C4E7F] dark:text-[#8B7FA8] dark:hover:text-[#8B7FA8]/80"
-              >
-                <X className="h-3 w-3" />
-                Clear all
-              </button>
-            </div>
-          )}
+              <div className="mb-3 flex items-center justify-between text-sm">
+                <p className="text-gray-600 dark:text-neutral-400">
+                  Found {filteredTransactions.length} transaction
+                  {filteredTransactions.length !== 1 ? "s" : ""}
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setDateFilter("all");
+                    setSelectedFilter("all");
+                  }}
+                  className="flex items-center gap-1 text-[#3D3066] hover:text-[#5C4E7F] dark:text-[#8B7FA8] dark:hover:text-[#8B7FA8]/80"
+                >
+                  <X className="h-3 w-3" />
+                  Clear all
+                </button>
+              </div>
+            )}
 
           {/* Transaction List */}
           <div className="space-y-3">
@@ -516,17 +523,17 @@ export function WalletTab({ onOpenManageSIP, onBack }: WalletTabProps) {
                   </p>
                   {(transaction.type === "BUY" ||
                     transaction.type === "SELL") && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDownloadInvoice(transaction.id);
-                      }}
-                      className="mt-1 ml-auto flex items-center gap-1 text-[10px] text-[#3D3066] hover:underline dark:text-[#8B7FA8]"
-                    >
-                      <FileText className="h-3 w-3" />
-                      Invoice
-                    </button>
-                  )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownloadInvoice(transaction.id);
+                        }}
+                        className="mt-1 ml-auto flex items-center gap-1 text-[10px] text-[#3D3066] hover:underline dark:text-[#8B7FA8]"
+                      >
+                        <FileText className="h-3 w-3" />
+                        Invoice
+                      </button>
+                    )}
                 </div>
               </div>
             ))}

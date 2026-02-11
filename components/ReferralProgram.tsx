@@ -46,7 +46,7 @@ export function ReferralProgram({ onClose }: ReferralProgramProps) {
       setLoading(false);
     }
   };
-  
+
   const referralLink = `https://zold.app/ref/${referralData.referralCode}`;
 
   const copyToClipboard = () => {
@@ -67,9 +67,9 @@ export function ReferralProgram({ onClose }: ReferralProgramProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-start justify-center z-50 pt-2">
       <style>{`.zold-hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } .zold-hide-scrollbar::-webkit-scrollbar{ display:none; }`}</style>
-      <div className="bg-white dark:bg-neutral-800 w-full max-w-lg rounded-t-3xl max-h-[90vh] overflow-y-auto zold-hide-scrollbar">
+      <div className="bg-white dark:bg-neutral-800 w-full max-w-lg rounded-t-3xl max-h-[95vh] overflow-y-auto zold-hide-scrollbar rounded-b-[2rem]">
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-5 rounded-t-3xl">
           <div className="flex items-center justify-between">
@@ -82,7 +82,7 @@ export function ReferralProgram({ onClose }: ReferralProgramProps) {
                 <p className="text-white/80 text-sm">Earn ₹100 per referral</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={onClose}
               className="bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors"
             >

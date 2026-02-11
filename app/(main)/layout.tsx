@@ -11,20 +11,14 @@ export default function MainLayout({
     children: React.ReactNode;
 }) {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-    const [mounted, setMounted] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        setMounted(true);
         const user = localStorage.getItem("user");
         if (!user) {
             router.replace("/onboarding");
         }
     }, [router]);
-
-    if (!mounted) {
-        return <div className="min-h-screen" />;
-    }
 
     return (
         <div className="flex min-h-screen dark:bg-neutral-900">

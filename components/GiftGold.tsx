@@ -214,9 +214,9 @@ export function GiftGold({ onClose }: GiftGoldProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 dark:bg-black/70">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 dark:bg-black/70 pt-2 ">
       <style>{`.zold-hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } .zold-hide-scrollbar::-webkit-scrollbar{ display:none; }`}</style>
-      <div className="zold-hide-scrollbar max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white dark:bg-neutral-800">
+      <div className="zold-hide-scrollbar max-h-[95vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white dark:bg-neutral-800 rounded-b-[2rem]">
         {/* Header */}
         <div className="sticky top-0 rounded-t-3xl bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-5">
           <div className="flex items-center justify-between">
@@ -290,11 +290,10 @@ export function GiftGold({ onClose }: GiftGoldProps) {
                     <button
                       key={occ.id}
                       onClick={() => setOccasion(occ.id)}
-                      className={`rounded-xl border-2 p-3 transition-all ${
-                        occasion === occ.id
-                          ? "border-[#3D3066] bg-purple-50 dark:border-[#8B7FA8] dark:bg-neutral-700"
-                          : "border-gray-200 bg-white hover:border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:border-neutral-600"
-                      }`}
+                      className={`rounded-xl border-2 p-3 transition-all ${occasion === occ.id
+                        ? "border-[#3D3066] bg-purple-50 dark:border-[#8B7FA8] dark:bg-neutral-700"
+                        : "border-gray-200 bg-white hover:border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:border-neutral-600"
+                        }`}
                     >
                       <p className="text-sm text-gray-900 dark:text-white">
                         {occ.label}
@@ -312,33 +311,30 @@ export function GiftGold({ onClose }: GiftGoldProps) {
                 <div className="grid grid-cols-3 gap-2 rounded-xl bg-gray-100 p-1 dark:bg-neutral-700">
                   <button
                     onClick={() => setGiftType("rupees")}
-                    className={`flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-medium transition-all ${
-                      giftType === "rupees"
-                        ? "bg-white text-[#3D3066] shadow dark:bg-neutral-600 dark:text-white"
-                        : "text-gray-600 dark:text-neutral-400"
-                    }`}
+                    className={`flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-medium transition-all ${giftType === "rupees"
+                      ? "bg-white text-[#3D3066] shadow dark:bg-neutral-600 dark:text-white"
+                      : "text-gray-600 dark:text-neutral-400"
+                      }`}
                   >
                     <Wallet className="h-4 w-4" />
                     Rupees
                   </button>
                   <button
                     onClick={() => setGiftType("grams")}
-                    className={`flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-medium transition-all ${
-                      giftType === "grams"
-                        ? "bg-white text-[#3D3066] shadow dark:bg-neutral-600 dark:text-white"
-                        : "text-gray-600 dark:text-neutral-400"
-                    }`}
+                    className={`flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-medium transition-all ${giftType === "grams"
+                      ? "bg-white text-[#3D3066] shadow dark:bg-neutral-600 dark:text-white"
+                      : "text-gray-600 dark:text-neutral-400"
+                      }`}
                   >
                     <Scale className="h-4 w-4" />
                     Grams
                   </button>
                   <button
                     onClick={() => setGiftType("coins")}
-                    className={`flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-medium transition-all ${
-                      giftType === "coins"
-                        ? "bg-white text-[#3D3066] shadow dark:bg-neutral-600 dark:text-white"
-                        : "text-gray-600 dark:text-neutral-400"
-                    }`}
+                    className={`flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-medium transition-all ${giftType === "coins"
+                      ? "bg-white text-[#3D3066] shadow dark:bg-neutral-600 dark:text-white"
+                      : "text-gray-600 dark:text-neutral-400"
+                      }`}
                   >
                     <Coins className="h-4 w-4" />
                     Coins
@@ -384,11 +380,10 @@ export function GiftGold({ onClose }: GiftGoldProps) {
                         <button
                           key={amount}
                           onClick={() => setGiftAmount(amount)}
-                          className={`rounded-lg border-2 py-3 transition-all ${
-                            giftAmount === amount
-                              ? "border-[#3D3066] bg-purple-50 text-[#3D3066] dark:border-[#8B7FA8] dark:bg-neutral-700 dark:text-white"
-                              : "border-gray-200 bg-white text-gray-900 hover:border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:hover:border-neutral-600"
-                          }`}
+                          className={`rounded-lg border-2 py-3 transition-all ${giftAmount === amount
+                            ? "border-[#3D3066] bg-purple-50 text-[#3D3066] dark:border-[#8B7FA8] dark:bg-neutral-700 dark:text-white"
+                            : "border-gray-200 bg-white text-gray-900 hover:border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:hover:border-neutral-600"
+                            }`}
                         >
                           ₹{amount}
                         </button>
@@ -426,11 +421,10 @@ export function GiftGold({ onClose }: GiftGoldProps) {
                         <button
                           key={g}
                           onClick={() => setGramsAmount(g)}
-                          className={`rounded-lg border-2 py-3 text-sm transition-all ${
-                            gramsAmount === g
-                              ? "border-amber-500 bg-amber-50 text-amber-600 dark:bg-neutral-700 dark:text-amber-400"
-                              : "border-gray-200 bg-white text-gray-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-                          }`}
+                          className={`rounded-lg border-2 py-3 text-sm transition-all ${gramsAmount === g
+                            ? "border-amber-500 bg-amber-50 text-amber-600 dark:bg-neutral-700 dark:text-amber-400"
+                            : "border-gray-200 bg-white text-gray-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                            }`}
                         >
                           {g}g
                         </button>
@@ -480,21 +474,19 @@ export function GiftGold({ onClose }: GiftGoldProps) {
                                   setCoinQuantity(Math.min(1, balance));
                                 }}
                                 disabled={balance === 0}
-                                className={`relative rounded-xl border-2 p-4 transition-all ${
-                                  selectedCoin === coin && balance > 0
-                                    ? "border-[#3D3066] bg-purple-50 dark:border-[#8B7FA8] dark:bg-neutral-700"
-                                    : balance === 0
-                                      ? "cursor-not-allowed border-gray-200 bg-gray-100 opacity-50 dark:border-neutral-700 dark:bg-neutral-800"
-                                      : "border-gray-200 bg-white hover:border-gray-300 dark:border-neutral-700 dark:bg-neutral-800"
-                                }`}
+                                className={`relative rounded-xl border-2 p-4 transition-all ${selectedCoin === coin && balance > 0
+                                  ? "border-[#3D3066] bg-purple-50 dark:border-[#8B7FA8] dark:bg-neutral-700"
+                                  : balance === 0
+                                    ? "cursor-not-allowed border-gray-200 bg-gray-100 opacity-50 dark:border-neutral-700 dark:bg-neutral-800"
+                                    : "border-gray-200 bg-white hover:border-gray-300 dark:border-neutral-700 dark:bg-neutral-800"
+                                  }`}
                               >
                                 <div className="mb-2 flex items-center justify-center">
                                   <div
-                                    className={`flex h-12 w-12 items-center justify-center rounded-full ${
-                                      selectedCoin === coin && balance > 0
-                                        ? "bg-linear-to-br from-amber-400 to-yellow-600"
-                                        : "bg-linear-to-br from-gray-300 to-gray-400 dark:from-neutral-500 dark:to-neutral-600"
-                                    }`}
+                                    className={`flex h-12 w-12 items-center justify-center rounded-full ${selectedCoin === coin && balance > 0
+                                      ? "bg-linear-to-br from-amber-400 to-yellow-600"
+                                      : "bg-linear-to-br from-gray-300 to-gray-400 dark:from-neutral-500 dark:to-neutral-600"
+                                      }`}
                                   >
                                     <span className="font-bold text-white">
                                       {coin}g
@@ -709,11 +701,10 @@ export function GiftGold({ onClose }: GiftGoldProps) {
                         onChange={(e) => setRecipientName(e.target.value)}
                         placeholder="Enter name"
                         readOnly={lookupResult?.found}
-                        className={`w-full rounded-xl border py-3 pr-4 pl-11 focus:outline-none ${
-                          lookupResult?.found
-                            ? "border-green-300 bg-green-50 text-green-900 dark:border-green-700 dark:bg-green-900/20 dark:text-green-300"
-                            : "border-gray-300 text-gray-800 focus:border-[#3D3066] dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:focus:border-[#8B7FA8]"
-                        }`}
+                        className={`w-full rounded-xl border py-3 pr-4 pl-11 focus:outline-none ${lookupResult?.found
+                          ? "border-green-300 bg-green-50 text-green-900 dark:border-green-700 dark:bg-green-900/20 dark:text-green-300"
+                          : "border-gray-300 text-gray-800 focus:border-[#3D3066] dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:focus:border-[#8B7FA8]"
+                          }`}
                       />
                     </div>
                   </div>

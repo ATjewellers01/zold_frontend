@@ -28,16 +28,29 @@ import {
 } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 
-import img1 from "@/components/images/1gmZold.jpg";
-import img2 from "@/components/images/2gmZold.jpg";
-import img5 from "@/components/images/5gmZold.jpg";
-import img10 from "@/components/images/10gmZold.jpg";
+// Images formate of JPG  -> Not optimized loading
+// import img1 from "@/components/images/1gmZold.jpg";
+// import img2 from "@/components/images/2gmZold.jpg";
+// import img5 from "@/components/images/5gmZold.jpg";
+// import img10 from "@/components/images/10gmZold.jpg";
+// import img1Box from "@/components/images/1gmZoldBox.jpg";
+// import img2Box from "@/components/images/2gmZoldBox.jpg";
+// import img5Box from "@/components/images/5gmZoldBox.jpg";
+// import img10Box from "@/components/images/10gmZoldBox.jpg";
 
-import img1Box from "@/components/images/1gmZoldBox.jpg";
-import img2Box from "@/components/images/2gmZoldBox.jpg";
-import img5Box from "@/components/images/5gmZoldBox.jpg";
-import img10Box from "@/components/images/10gmZoldBox.jpg";
+// Images of Formate WEBP --> Optimized  loading
+import img1 from "@/components/images/1gmZold.webp";
+import img2 from "@/components/images/2gmZold.webp";
+import img5 from "@/components/images/5gmZold.webp";
+import img10 from "@/components/images/10gmZold.webp";
+import img1Box from "@/components/images/1gmZoldBox.webp";
+import img2Box from "@/components/images/2gmZoldBox.webp";
+import img5Box from "@/components/images/5gmZoldBox.webp";
+import img10Box from "@/components/images/10gmZoldBox.webp";
+
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api";
+console.log("Runnin", API_URL);
 
 interface CartItem {
   weight: number;
@@ -45,7 +58,7 @@ interface CartItem {
   price: number;
 }
 
-// interface CoinProduct {
+// interface CoinProduct {  
 //   weight: number;
 //   label: string;
 //   popular: boolean;
@@ -92,11 +105,13 @@ const coinBoxImages: Record<number, any> = {
 
 export default function Page() {
   return (
-    <Suspense fallback={
+    <Suspense
+      fallback={
         <div className="flex h-screen items-center justify-center bg-white dark:bg-[#141414]">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#B8960C] border-t-transparent"></div>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#B8960C] border-t-transparent"></div>
         </div>
-    }>
+      }
+    >
       <GoldContent />
     </Suspense>
   );
@@ -165,8 +180,19 @@ function GoldContent() {
   ];
 
   const coin = coinProducts.find((c) => c.weight === id);
+  useEffect(() => {
+    if (!coin) return;
+
+    const preloadImages = [coinImages[coin.weight], coinBoxImages[coin.weight]];
+
+    preloadImages.forEach((img) => {
+      const image = new window.Image();
+      image.src = img.src;
+    });
+  }, [coin]);
 
   // ---------------------- AUTH & FETCH ----------------------
+
   const getAuthToken = () => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("token");
@@ -219,7 +245,7 @@ function GoldContent() {
 
     const socket: Socket = io(
       process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
-        "http://localhost:5001",
+      "http://localhost:5001",
       {
         transports: ["websocket", "polling"],
         reconnection: true,
@@ -413,28 +439,40 @@ function GoldContent() {
         <div className="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-12 rounded-md md:grid-cols-2">
           {/* IMAGE */}
           <div className="relative rounded-full transition-all duration-200 hover:shadow-xl">
-            <button
-              onClick={() => setShowBox(false)}
-              className="group absolute top-1/2 left-3 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#B8960C] bg-white shadow-lg transition-all duration-300 hover:scale-110 hover:bg-[#B8960C]"
-            >
-              <ChevronLeft className="h-6 w-6 text-[#B8960C] transition-colors duration-300 group-hover:text-white" />
-            </button>
+            {/* Left Arrow (visible only when box is shown) */}
+            {showBox && (
+              <button
+                onClick={() => setShowBox(false)}
+                className="group absolute top-1/2 left-3 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#B8960C] bg-white shadow-lg transition-all duration-300 hover:scale-110 hover:bg-[#B8960C]"
+              >
+                <ChevronLeft className="h-6 w-6 text-[#B8960C] transition-colors duration-300 group-hover:text-white" />
+              </button>
+            )}
 
-            {/* Right Arrow */}
-            <button
-              onClick={() => setShowBox(true)}
-              className="group absolute top-1/2 right-3 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#B8960C] bg-white shadow-lg transition-all duration-300 hover:scale-110 hover:bg-[#B8960C]"
-            >
-              <ChevronRight className="h-6 w-6 text-[#B8960C] transition-colors duration-300 group-hover:text-white" />
-            </button>
+            {/* Right Arrow (visible only when coin is shown) */}
+            {!showBox && (
+              <button
+                onClick={() => setShowBox(true)}
+                className="group absolute top-1/2 right-3 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#B8960C] bg-white shadow-lg transition-all duration-300 hover:scale-110 hover:bg-[#B8960C]"
+              >
+                <ChevronRight className="h-6 w-6 text-[#B8960C] transition-colors duration-300 group-hover:text-white" />
+              </button>
+            )}
+
             <div className="group relative h-[460px] w-full overflow-hidden rounded-[40px] border bg-white shadow-[0_20px_50px_rgba(0,0,0,0.10)]">
               <div className="pointer-events-none absolute inset-0 rounded-[40px] bg-gradient-to-tr from-white/25 via-transparent to-transparent" />
+
               <Image
+                key={showBox ? "box" : "coin"}
                 src={
                   showBox ? coinBoxImages[coin.weight] : coinImages[coin.weight]
                 }
                 alt={coin.displayName}
                 fill
+                priority
+                loading="eager"
+                fetchPriority="high"
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-contain transition-transform duration-500"
               />
             </div>
@@ -645,25 +683,22 @@ function GoldContent() {
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => setSelectedPayment("rupees")}
-                      className={`group rounded-[16px] border-2 p-4 text-left transition-all active:scale-95 ${
-                        selectedPayment === "rupees"
-                          ? "border-[#B8960C] bg-gradient-to-br from-[#fffef5] to-[#fef9e6] shadow-lg shadow-[#B8960C]/20 dark:border-[#D4AF37] dark:from-[#D4AF37]/15 dark:to-[#D4AF37]/5"
-                          : "border-[#E6E6E6] bg-white hover:border-[#B8960C] hover:shadow-md dark:border-[#2a2a2a] dark:bg-[#141414] dark:hover:border-[#D4AF37]"
-                      }`}
+                      className={`group rounded-[16px] border-2 p-4 text-left transition-all active:scale-95 ${selectedPayment === "rupees"
+                        ? "border-[#B8960C] bg-gradient-to-br from-[#fffef5] to-[#fef9e6] shadow-lg shadow-[#B8960C]/20 dark:border-[#D4AF37] dark:from-[#D4AF37]/15 dark:to-[#D4AF37]/5"
+                        : "border-[#E6E6E6] bg-white hover:border-[#B8960C] hover:shadow-md dark:border-[#2a2a2a] dark:bg-[#141414] dark:hover:border-[#D4AF37]"
+                        }`}
                     >
                       <div
-                        className={`mb-3 flex h-10 w-10 items-center justify-center rounded-full transition-all ${
-                          selectedPayment === "rupees"
-                            ? "bg-[#B8960C] dark:bg-[#D4AF37]"
-                            : "bg-[#F6F6F6] group-hover:bg-[#B8960C]/10 dark:bg-[#1a1a1a]"
-                        }`}
+                        className={`mb-3 flex h-10 w-10 items-center justify-center rounded-full transition-all ${selectedPayment === "rupees"
+                          ? "bg-[#B8960C] dark:bg-[#D4AF37]"
+                          : "bg-[#F6F6F6] group-hover:bg-[#B8960C]/10 dark:bg-[#1a1a1a]"
+                          }`}
                       >
                         <CreditCard
-                          className={`h-5 w-5 ${
-                            selectedPayment === "rupees"
-                              ? "text-white dark:text-[#1a1a1a]"
-                              : "text-gray-600 dark:text-gray-400"
-                          }`}
+                          className={`h-5 w-5 ${selectedPayment === "rupees"
+                            ? "text-white dark:text-[#1a1a1a]"
+                            : "text-gray-600 dark:text-gray-400"
+                            }`}
                         />
                       </div>
                       <p className="mb-1 text-sm font-bold text-[#1a1a1a] dark:text-white">
@@ -684,25 +719,22 @@ function GoldContent() {
 
                     <button
                       onClick={() => setSelectedPayment("wallet_gold")}
-                      className={`group rounded-[16px] border-2 p-4 text-left transition-all active:scale-95 ${
-                        selectedPayment === "wallet_gold"
-                          ? "border-[#B8960C] bg-gradient-to-br from-[#fffef5] to-[#fef9e6] shadow-lg shadow-[#B8960C]/20 dark:border-[#D4AF37] dark:from-[#D4AF37]/15 dark:to-[#D4AF37]/5"
-                          : "border-[#E6E6E6] bg-white hover:border-[#B8960C] hover:shadow-md dark:border-[#2a2a2a] dark:bg-[#141414] dark:hover:border-[#D4AF37]"
-                      }`}
+                      className={`group rounded-[16px] border-2 p-4 text-left transition-all active:scale-95 ${selectedPayment === "wallet_gold"
+                        ? "border-[#B8960C] bg-gradient-to-br from-[#fffef5] to-[#fef9e6] shadow-lg shadow-[#B8960C]/20 dark:border-[#D4AF37] dark:from-[#D4AF37]/15 dark:to-[#D4AF37]/5"
+                        : "border-[#E6E6E6] bg-white hover:border-[#B8960C] hover:shadow-md dark:border-[#2a2a2a] dark:bg-[#141414] dark:hover:border-[#D4AF37]"
+                        }`}
                     >
                       <div
-                        className={`mb-3 flex h-10 w-10 items-center justify-center rounded-full transition-all ${
-                          selectedPayment === "wallet_gold"
-                            ? "bg-[#B8960C] dark:bg-[#D4AF37]"
-                            : "bg-[#F6F6F6] group-hover:bg-[#B8960C]/10 dark:bg-[#1a1a1a]"
-                        }`}
+                        className={`mb-3 flex h-10 w-10 items-center justify-center rounded-full transition-all ${selectedPayment === "wallet_gold"
+                          ? "bg-[#B8960C] dark:bg-[#D4AF37]"
+                          : "bg-[#F6F6F6] group-hover:bg-[#B8960C]/10 dark:bg-[#1a1a1a]"
+                          }`}
                       >
                         <Wallet
-                          className={`h-5 w-5 ${
-                            selectedPayment === "wallet_gold"
-                              ? "text-white dark:text-[#1a1a1a]"
-                              : "text-gray-600 dark:text-gray-400"
-                          }`}
+                          className={`h-5 w-5 ${selectedPayment === "wallet_gold"
+                            ? "text-white dark:text-[#1a1a1a]"
+                            : "text-gray-600 dark:text-gray-400"
+                            }`}
                         />
                       </div>
                       <p className="mb-1 text-sm font-bold text-[#1a1a1a] dark:text-white">

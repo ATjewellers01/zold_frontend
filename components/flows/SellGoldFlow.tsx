@@ -55,6 +55,10 @@ export function SellGoldFlow({ onClose }: SellGoldFlowProps) {
   const spreadPercentage = ((priceDifference / goldBuyPrice) * 100).toFixed(2);
   const tdsRate = 3; // 3% GST
   const shippingFee = 150;
+  const [gramsValue, setGramsValue] = useState("");
+  const [rupeesValue, setRupeesValue] = useState("");
+
+
 
   const getAuthToken = () => {
     if (typeof window !== "undefined") {
@@ -171,7 +175,7 @@ export function SellGoldFlow({ onClose }: SellGoldFlowProps) {
     // WebSocket for real-time prices
     const socket: Socket = io(
       process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
-        "http://localhost:5001",
+      "http://localhost:5001",
       {
         transports: ["websocket", "polling"],
       },
@@ -211,6 +215,35 @@ export function SellGoldFlow({ onClose }: SellGoldFlowProps) {
 
   const calculateGrams = (rupees: number) => {
     return rupees / goldSellPrice;
+  };
+
+  const handleGramsChange = (val: string) => {
+    setGramsValue(val);
+    setInputMode("grams");
+    const numVal = parseFloat(val);
+    if (val === "" || isNaN(numVal)) {
+      setAmount("");
+      setRupeesValue("");
+      return;
+    }
+    setAmount(val);
+    setRupeesValue((numVal * goldSellPrice).toFixed(2));
+  };
+
+  const handleRupeesChange = (val: string) => {
+    setRupeesValue(val);
+    setInputMode("rupees");
+    const numVal = parseFloat(val);
+    if (val === "" || isNaN(numVal)) {
+      setAmount("");
+      setGramsValue("");
+      return;
+    }
+    setAmount(val); // Amount is technically in Rupees now, but logic expects 'amount' to be the primary value. 
+    // Wait, if inputMode is 'rupees', 'inputValue' is parsed from 'amount'.
+    // Then 'grams' is calculated from 'inputValue'.
+    // So setting 'amount' to rupee value is correct if inputMode is 'rupees'.
+    setGramsValue((numVal / goldSellPrice).toFixed(4));
   };
 
   const inputValue = parseFloat(amount) || 0;
@@ -371,12 +404,13 @@ export function SellGoldFlow({ onClose }: SellGoldFlowProps) {
                 onClick={() => {
                   setInputMode("grams");
                   setAmount("");
+                  setGramsValue("");
+                  setRupeesValue("");
                 }}
-                className={`rounded-lg py-2.5 text-xs font-semibold transition-all sm:rounded-xl sm:py-3 sm:text-sm ${
-                  inputMode === "grams"
-                    ? "bg-[#FCDE5B] text-[#1a1a2e] shadow-md"
-                    : "border border-gray-200 bg-white text-gray-700 hover:border-[#FCDE5B] dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
-                }`}
+                className={`rounded-lg py-2.5 text-xs font-semibold transition-all sm:rounded-xl sm:py-3 sm:text-sm ${inputMode === "grams"
+                  ? "bg-[#FCDE5B] text-[#1a1a2e] shadow-md"
+                  : "border border-gray-200 bg-white text-gray-700 hover:border-[#FCDE5B] dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+                  }`}
               >
                 Sell in Grams
               </button>
@@ -384,73 +418,65 @@ export function SellGoldFlow({ onClose }: SellGoldFlowProps) {
                 onClick={() => {
                   setInputMode("rupees");
                   setAmount("");
+                  setGramsValue("");
+                  setRupeesValue("");
                 }}
-                className={`rounded-lg py-2.5 text-xs font-semibold transition-all sm:rounded-xl sm:py-3 sm:text-sm ${
-                  inputMode === "rupees"
-                    ? "bg-[#FCDE5B] text-[#1a1a2e] shadow-md"
-                    : "border border-gray-200 bg-white text-gray-700 hover:border-[#FCDE5B] dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
-                }`}
+                className={`rounded-lg py-2.5 text-xs font-semibold transition-all sm:rounded-xl sm:py-3 sm:text-sm ${inputMode === "rupees"
+                  ? "bg-[#FCDE5B] text-[#1a1a2e] shadow-md"
+                  : "border border-gray-200 bg-white text-gray-700 hover:border-[#FCDE5B] dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+                  }`}
               >
                 Sell in ₹
               </button>
             </div>
 
             {/* Amount Input - Responsive */}
-            <div className="mb-4 rounded-xl border border-gray-100 bg-white p-4 shadow-lg sm:mb-6 sm:rounded-2xl sm:p-6 dark:border-neutral-700 dark:bg-neutral-800">
-              <label className="mb-2 block text-sm font-semibold text-gray-800 sm:mb-3 sm:text-base dark:text-white">
-                {inputMode === "grams"
-                  ? "Enter Weight to Sell (grams)"
-                  : "Enter Amount (₹)"}
-              </label>
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder={inputMode === "grams" ? "1.0" : "1000"}
-                step={inputMode === "grams" ? "0.1" : "100"}
-                min="0"
-                className="w-full rounded-lg border-2 border-gray-200 px-3 py-3 text-xl font-bold text-gray-900 transition-all focus:border-[#FCDE5B] focus:ring-2 focus:ring-[#FCDE5B]/20 focus:outline-none sm:rounded-xl sm:px-4 sm:py-4 sm:text-2xl dark:border-neutral-600 dark:bg-neutral-700 dark:text-white"
-              />
+            {/* Amount Inputs */}
+            <div className="mb-4 rounded-xl border border-gray-100 bg-white p-4 shadow-lg sm:p-6 dark:border-neutral-700 dark:bg-neutral-800">
 
-              {/* Validation Messages */}
-              {amount && hasInsufficientGold && (
-                <p className="mt-2 text-xs text-red-600 sm:text-sm dark:text-red-400">
-                  Insufficient gold balance. You have only{" "}
-                  {userGoldBalance.toFixed(4)} grams.
-                </p>
-              )}
-              {amount &&
-                parseFloat(amount) < (inputMode === "grams" ? 0.1 : 100) && (
-                  <p className="mt-2 text-xs text-red-600 sm:text-sm dark:text-red-400">
-                    Minimum {inputMode === "grams" ? "0.1 grams" : "₹100"}{" "}
-                    required
-                  </p>
-                )}
-              {amount &&
-                !hasInsufficientGold &&
-                parseFloat(amount) >= (inputMode === "grams" ? 0.1 : 100) && (
-                  <p className="mt-2 text-xs text-green-600 sm:text-sm dark:text-green-400">
-                    Available: {userGoldBalance.toFixed(4)} grams
-                  </p>
-                )}
+              <div className="flex items-center gap-3">
 
-              {amount && isValidAmount && (
-                <div className="mt-3 rounded-lg bg-[#FCDE5B]/10 p-3 sm:mt-4 sm:p-4 dark:bg-[#FCDE5B]/5">
-                  <p className="mb-1 text-xs text-gray-600 sm:text-sm dark:text-neutral-400">
-                    You will receive
-                  </p>
-                  {inputMode === "grams" ? (
-                    <p className="text-lg font-bold text-gray-900 sm:text-xl dark:text-white">
-                      ₹{netAmount.toFixed(2)}
-                    </p>
-                  ) : (
-                    <p className="text-lg font-bold text-gray-900 sm:text-xl dark:text-white">
-                      {grams.toFixed(4)} grams
-                    </p>
-                  )}
+                {/* Grams */}
+                <div className="relative flex-1">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 font-semibold text-gray-500">
+                    gm
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={gramsValue}
+                    onChange={(e) => handleGramsChange(e.target.value)}
+                    placeholder="1.0"
+                    className="w-full rounded-xl border px-4 py-3 pr-12 font-semibold text-black"
+                  />
                 </div>
-              )}
+
+                {/* Swap */}
+                <button // onClick={swapInputs} 
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FCDE5B] text-lg font-bold shadow" > ⇆
+                </button>
+
+                {/* Rupees */}
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-semibold text-gray-500">
+                    ₹
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={rupeesValue}
+                    onChange={(e) => handleRupeesChange(e.target.value)}
+                    placeholder="1000"
+                    className="w-full rounded-xl border px-8 py-3 font-semibold text-black"
+                  />
+                </div>
+
+
+              </div>
             </div>
+
 
             {/* Quick Amount Buttons - Responsive */}
             {inputMode === "grams" && (
@@ -458,9 +484,9 @@ export function SellGoldFlow({ onClose }: SellGoldFlowProps) {
                 {[0.5, 1.0, 2.0, 5.0].map((gms) => (
                   <button
                     key={gms}
-                    onClick={() => setAmount(gms.toString())}
+                    onClick={() => handleGramsChange(gms.toString())}
                     className="rounded-lg border border-gray-200 bg-white py-2.5 text-xs font-semibold text-gray-700 transition-all hover:border-[#FCDE5B] hover:bg-[#FCDE5B]/5 disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:py-3 sm:text-sm dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300"
-                    disabled={gms > userGoldBalance}
+                  // disabled={gms > userGoldBalance}
                   >
                     {gms}g
                   </button>
@@ -562,19 +588,17 @@ export function SellGoldFlow({ onClose }: SellGoldFlowProps) {
                     onClick={() =>
                       setSelectedStorage(option.id as "vault" | "partner")
                     }
-                    className={`w-full rounded-xl border-2 p-4 text-left transition-colors ${
-                      selectedStorage === option.id
-                        ? "border-[#3D3066] bg-[#F3F1F7] dark:border-[#8B7FA8] dark:bg-neutral-700"
-                        : "border-gray-200 bg-white hover:border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:border-neutral-600"
-                    }`}
+                    className={`w-full rounded-xl border-2 p-4 text-left transition-colors ${selectedStorage === option.id
+                      ? "border-[#3D3066] bg-[#F3F1F7] dark:border-[#8B7FA8] dark:bg-neutral-700"
+                      : "border-gray-200 bg-white hover:border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:border-neutral-600"
+                      }`}
                   >
                     <div className="mb-2 flex items-center gap-3">
                       <div
-                        className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-                          selectedStorage === option.id
-                            ? "border-[#3D3066] dark:border-[#8B7FA8]"
-                            : "border-gray-300 dark:border-neutral-600"
-                        }`}
+                        className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${selectedStorage === option.id
+                          ? "border-[#3D3066] dark:border-[#8B7FA8]"
+                          : "border-gray-300 dark:border-neutral-600"
+                          }`}
                       >
                         {selectedStorage === option.id && (
                           <div className="h-3 w-3 rounded-full bg-[#3D3066] dark:bg-[#8B7FA8]" />
@@ -731,19 +755,17 @@ export function SellGoldFlow({ onClose }: SellGoldFlowProps) {
                             setSelectedUpiId(null);
                             setSelectedPaymentMethod("bank");
                           }}
-                          className={`mb-2 w-full rounded-xl border-2 p-4 text-left transition-all ${
-                            selectedBankId === account.id
-                              ? "border-[#FCDE5B] bg-[#FCDE5B]/10 shadow-md dark:bg-[#FCDE5B]/5"
-                              : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:shadow-sm dark:border-neutral-700 dark:bg-neutral-800/50 dark:hover:border-neutral-600"
-                          }`}
+                          className={`mb-2 w-full rounded-xl border-2 p-4 text-left transition-all ${selectedBankId === account.id
+                            ? "border-[#FCDE5B] bg-[#FCDE5B]/10 shadow-md dark:bg-[#FCDE5B]/5"
+                            : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:shadow-sm dark:border-neutral-700 dark:bg-neutral-800/50 dark:hover:border-neutral-600"
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <div
-                              className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                                selectedBankId === account.id
-                                  ? "bg-[#FCDE5B] text-[#1a1a2e]"
-                                  : "bg-gray-200 text-gray-600 dark:bg-neutral-700 dark:text-neutral-400"
-                              }`}
+                              className={`flex h-10 w-10 items-center justify-center rounded-full ${selectedBankId === account.id
+                                ? "bg-[#FCDE5B] text-[#1a1a2e]"
+                                : "bg-gray-200 text-gray-600 dark:bg-neutral-700 dark:text-neutral-400"
+                                }`}
                             >
                               <CreditCard className="h-5 w-5" />
                             </div>
@@ -764,11 +786,10 @@ export function SellGoldFlow({ onClose }: SellGoldFlowProps) {
                               </p>
                             </div>
                             <div
-                              className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${
-                                selectedBankId === account.id
-                                  ? "border-[#FCDE5B] bg-[#FCDE5B]"
-                                  : "border-gray-300 dark:border-neutral-600"
-                              }`}
+                              className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${selectedBankId === account.id
+                                ? "border-[#FCDE5B] bg-[#FCDE5B]"
+                                : "border-gray-300 dark:border-neutral-600"
+                                }`}
                             >
                               {selectedBankId === account.id && (
                                 <CheckCircle className="h-4 w-4 text-[#1a1a2e]" />
@@ -787,82 +808,79 @@ export function SellGoldFlow({ onClose }: SellGoldFlowProps) {
                       m.type === "WALLET" ||
                       m.type === "NETBANKING",
                   ).length > 0 && (
-                    <div>
-                      <p className="mb-2 text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-neutral-400">
-                        Other Payment Methods
-                      </p>
-                      {savedUpiMethods
-                        .filter(
-                          (m) =>
-                            m.type === "CARD" ||
-                            m.type === "WALLET" ||
-                            m.type === "NETBANKING",
-                        )
-                        .map((method) => (
-                          <button
-                            key={method.id}
-                            onClick={() => {
-                              setSelectedUpiId(method.id);
-                              setSelectedBankId(null);
-                              setSelectedPaymentMethod(
-                                method.type.toLowerCase(),
-                              );
-                            }}
-                            className={`mb-2 w-full rounded-xl border-2 p-4 text-left transition-all ${
-                              selectedUpiId === method.id
+                      <div>
+                        <p className="mb-2 text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-neutral-400">
+                          Other Payment Methods
+                        </p>
+                        {savedUpiMethods
+                          .filter(
+                            (m) =>
+                              m.type === "CARD" ||
+                              m.type === "WALLET" ||
+                              m.type === "NETBANKING",
+                          )
+                          .map((method) => (
+                            <button
+                              key={method.id}
+                              onClick={() => {
+                                setSelectedUpiId(method.id);
+                                setSelectedBankId(null);
+                                setSelectedPaymentMethod(
+                                  method.type.toLowerCase(),
+                                );
+                              }}
+                              className={`mb-2 w-full rounded-xl border-2 p-4 text-left transition-all ${selectedUpiId === method.id
                                 ? "border-[#FCDE5B] bg-[#FCDE5B]/10 shadow-md dark:bg-[#FCDE5B]/5"
                                 : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:shadow-sm dark:border-neutral-700 dark:bg-neutral-800/50 dark:hover:border-neutral-600"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                                  selectedUpiId === method.id
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className={`flex h-10 w-10 items-center justify-center rounded-full ${selectedUpiId === method.id
                                     ? "bg-[#FCDE5B] text-[#1a1a2e]"
                                     : "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
-                                }`}
-                              >
-                                {method.type === "CARD" ? (
-                                  <CreditCard className="h-5 w-5" />
-                                ) : (
-                                  <Wallet className="h-5 w-5" />
-                                )}
-                              </div>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-semibold text-gray-900 dark:text-white">
-                                    {method.type === "CARD"
-                                      ? `${method.cardNetwork || "Card"} •••• ${method.cardLast4 || "****"}`
-                                      : method.provider || method.type}
-                                  </span>
-                                  {method.isPrimary && (
-                                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                                      Primary
-                                    </span>
+                                    }`}
+                                >
+                                  {method.type === "CARD" ? (
+                                    <CreditCard className="h-5 w-5" />
+                                  ) : (
+                                    <Wallet className="h-5 w-5" />
                                   )}
                                 </div>
-                                <p className="mt-0.5 text-sm text-gray-500 dark:text-neutral-400">
-                                  {method.type === "CARD"
-                                    ? `Expires ${method.expiryMonth}/${method.expiryYear}`
-                                    : "Instant refund"}
-                                </p>
-                              </div>
-                              <div
-                                className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${
-                                  selectedUpiId === method.id
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-semibold text-gray-900 dark:text-white">
+                                      {method.type === "CARD"
+                                        ? `${method.cardNetwork || "Card"} •••• ${method.cardLast4 || "****"}`
+                                        : method.provider || method.type}
+                                    </span>
+                                    {method.isPrimary && (
+                                      <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                        Primary
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="mt-0.5 text-sm text-gray-500 dark:text-neutral-400">
+                                    {method.type === "CARD"
+                                      ? `Expires ${method.expiryMonth}/${method.expiryYear}`
+                                      : "Instant refund"}
+                                  </p>
+                                </div>
+                                <div
+                                  className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${selectedUpiId === method.id
                                     ? "border-[#FCDE5B] bg-[#FCDE5B]"
                                     : "border-gray-300 dark:border-neutral-600"
-                                }`}
-                              >
-                                {selectedUpiId === method.id && (
-                                  <CheckCircle className="h-4 w-4 text-[#1a1a2e]" />
-                                )}
+                                    }`}
+                                >
+                                  {selectedUpiId === method.id && (
+                                    <CheckCircle className="h-4 w-4 text-[#1a1a2e]" />
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          </button>
-                        ))}
-                    </div>
-                  )}
+                            </button>
+                          ))}
+                      </div>
+                    )}
 
                   {/* Store Credit Option */}
                   <div>
@@ -875,23 +893,21 @@ export function SellGoldFlow({ onClose }: SellGoldFlowProps) {
                         setSelectedUpiId(null);
                         setSelectedPaymentMethod("credit");
                       }}
-                      className={`w-full rounded-xl border-2 p-4 text-left transition-all ${
-                        selectedPaymentMethod === "credit" &&
+                      className={`w-full rounded-xl border-2 p-4 text-left transition-all ${selectedPaymentMethod === "credit" &&
                         !selectedBankId &&
                         !selectedUpiId
-                          ? "border-[#FCDE5B] bg-[#FCDE5B]/10 shadow-md dark:bg-[#FCDE5B]/5"
-                          : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:shadow-sm dark:border-neutral-700 dark:bg-neutral-800/50 dark:hover:border-neutral-600"
-                      }`}
+                        ? "border-[#FCDE5B] bg-[#FCDE5B]/10 shadow-md dark:bg-[#FCDE5B]/5"
+                        : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:shadow-sm dark:border-neutral-700 dark:bg-neutral-800/50 dark:hover:border-neutral-600"
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                            selectedPaymentMethod === "credit" &&
+                          className={`flex h-10 w-10 items-center justify-center rounded-full ${selectedPaymentMethod === "credit" &&
                             !selectedBankId &&
                             !selectedUpiId
-                              ? "bg-[#FCDE5B] text-[#1a1a2e]"
-                              : "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
-                          }`}
+                            ? "bg-[#FCDE5B] text-[#1a1a2e]"
+                            : "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
+                            }`}
                         >
                           <Wallet className="h-5 w-5" />
                         </div>
@@ -904,13 +920,12 @@ export function SellGoldFlow({ onClose }: SellGoldFlowProps) {
                           </p>
                         </div>
                         <div
-                          className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${
-                            selectedPaymentMethod === "credit" &&
+                          className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${selectedPaymentMethod === "credit" &&
                             !selectedBankId &&
                             !selectedUpiId
-                              ? "border-[#FCDE5B] bg-[#FCDE5B]"
-                              : "border-gray-300 dark:border-neutral-600"
-                          }`}
+                            ? "border-[#FCDE5B] bg-[#FCDE5B]"
+                            : "border-gray-300 dark:border-neutral-600"
+                            }`}
                         >
                           {selectedPaymentMethod === "credit" &&
                             !selectedBankId &&
@@ -1114,11 +1129,10 @@ export function SellGoldFlow({ onClose }: SellGoldFlowProps) {
                     {selectedCard && (
                       <div className="flex items-center gap-4">
                         <div
-                          className={`flex h-14 w-14 items-center justify-center rounded-xl ${
-                            selectedCard.type === "CARD"
-                              ? "bg-purple-100 dark:bg-purple-900/30"
-                              : "bg-orange-100 dark:bg-orange-900/30"
-                          }`}
+                          className={`flex h-14 w-14 items-center justify-center rounded-xl ${selectedCard.type === "CARD"
+                            ? "bg-purple-100 dark:bg-purple-900/30"
+                            : "bg-orange-100 dark:bg-orange-900/30"
+                            }`}
                         >
                           {selectedCard.type === "CARD" ? (
                             <CreditCard className="h-7 w-7 text-purple-600 dark:text-purple-400" />

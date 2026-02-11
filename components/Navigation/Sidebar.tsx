@@ -42,7 +42,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     { path: "/home", icon: Home, label: "Home" },
     { path: "/wallet", icon: Wallet, label: "Wallet" },
     { path: "/partners", icon: MapPin, label: "Partners" },
-    { path: "/loans", icon: Banknote, label: "Loans" },
+    // Loan Section is Diable for now ,  SERVICE UNDER DEVELOPMENT  
+    // { path: "/loans", icon: Banknote, label: "Loans" },
     { path: "/profile", icon: User, label: "Profile" },
   ];
 
@@ -52,9 +53,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
   return (
     <div
-      className={`fixed top-0 left-0 hidden h-full min-h-screen flex-col border-r border-gray-200 bg-white transition-all duration-300 lg:flex dark:border-neutral-700 dark:bg-neutral-800 ${
-        collapsed ? "w-20" : "w-64"
-      }`}
+      className={`fixed top-0 left-0 hidden h-full min-h-screen flex-col border-r border-gray-200 bg-white transition-all duration-300 lg:flex dark:border-neutral-700 dark:bg-neutral-800 ${collapsed ? "w-20" : "w-64"
+        }`}
     >
       {/* Sidebar Header */}
       <div className="border-b border-gray-200 p-6 dark:border-neutral-700">
@@ -82,24 +82,41 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </div>
 
       {/* Navigation Items */}
-      <nav className="custom_scrollbar flex-1 space-y-2 overflow-y-auto p-4">
-        {navItems.map((item) => (
+      {navItems.map((item) => {
+        const isDisabled = false;
+
+        return isDisabled ? (
+          <div
+            key={item.path}
+            title="Coming soon"
+            className="flex w-full cursor-not-allowed items-center gap-3 rounded-lg p-3 text-gray-400 opacity-60"
+          >
+            <item.icon className="h-5 w-5 shrink-0" />
+            {!collapsed && (
+              <span className="font-medium">{item.label}</span>
+            )}
+          </div>
+        ) : (
           <Link
             key={item.path}
             href={item.path}
-            className={`flex w-full items-center gap-3 rounded-lg p-3 transition-colors ${
-              isActive(item.path)
-                ? "bg-[#FCDE5B]/20 text-[#1a1a2e] dark:bg-[#FCDE5B]/10 dark:text-[#FCDE5B]"
-                : "text-gray-700 hover:bg-gray-50 dark:text-neutral-400 dark:hover:bg-neutral-700/50"
-            }`}
+            className={`flex w-full items-center gap-3 rounded-lg p-3 transition-colors ${isActive(item.path)
+              ? "bg-[#F4C430]/60 text-[#A67C00] dark:bg-[#F4C430]/20 dark:text-[#FFD54F]"
+              : "text-gray-700 hover:bg-gray-50 dark:text-neutral-400 dark:hover:bg-neutral-700/50"
+              }`}
+
           >
             <item.icon
-              className={`h-5 w-5 shrink-0 ${isActive(item.path) ? "text-[#FCDE5B]" : ""}`}
+              className={`h-5 w-5 shrink-0 ${isActive(item.path) ? "text-[#B8860B]" : ""
+                }`}
             />
-            {!collapsed && <span className="font-medium">{item.label}</span>}
+            {!collapsed && (
+              <span className="font-medium">{item.label}</span>
+            )}
           </Link>
-        ))}
-      </nav>
+        );
+      })}
+
 
       {/* Quick Actions in Sidebar */}
       <div className="border-t border-gray-200 p-4 dark:border-neutral-700">
@@ -111,9 +128,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <div className="space-y-2">
           <Link
             href="/buy-gold"
-            className={`flex w-full items-center ${
-              !collapsed ? "gap-3" : "justify-center"
-            } rounded-lg bg-[#FCDE5B] p-3 font-semibold text-[#1a1a2e] shadow-md transition-all hover:bg-[#f5d347] hover:shadow-lg`}
+            className={`flex w-full items-center ${!collapsed ? "gap-3" : "justify-center"
+              } rounded-lg bg-[#FCDE5B] p-3 font-semibold text-[#1a1a2e] shadow-md transition-all hover:bg-[#f5d347] hover:shadow-lg`}
             title="Buy Gold"
           >
             <Coins className="h-5 w-5" />
@@ -121,9 +137,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           </Link>
           <Link
             href="/gold-goals"
-            className={`flex w-full items-center ${
-              !collapsed ? "gap-3" : "justify-center"
-            } rounded-lg border border-gray-200 bg-white p-3 transition-all hover:border-[#FCDE5B] hover:bg-[#FCDE5B]/5 dark:border-neutral-600 dark:bg-neutral-800 dark:hover:border-[#FCDE5B]`}
+            className={`flex w-full items-center ${!collapsed ? "gap-3" : "justify-center"
+              } rounded-lg border border-gray-200 bg-white p-3 transition-all hover:border-[#FCDE5B] hover:bg-[#FCDE5B]/5 dark:border-neutral-600 dark:bg-neutral-800 dark:hover:border-[#FCDE5B]`}
             title="Create Goal"
           >
             <Target className="h-5 w-5 text-gray-600 dark:text-neutral-300" />
@@ -135,9 +150,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           </Link>
           <Link
             href="/gift-gold"
-            className={`flex w-full items-center ${
-              !collapsed ? "gap-3" : "justify-center"
-            } rounded-lg border border-gray-200 bg-white p-3 transition-all hover:border-[#FCDE5B] hover:bg-[#FCDE5B]/5 dark:border-neutral-600 dark:bg-neutral-800 dark:hover:border-[#FCDE5B]`}
+            className={`flex w-full items-center ${!collapsed ? "gap-3" : "justify-center"
+              } rounded-lg border border-gray-200 bg-white p-3 transition-all hover:border-[#FCDE5B] hover:bg-[#FCDE5B]/5 dark:border-neutral-600 dark:bg-neutral-800 dark:hover:border-[#FCDE5B]`}
             title="Gift Gold"
           >
             <Gift className="h-5 w-5 text-gray-600 dark:text-neutral-300" />

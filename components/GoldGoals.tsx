@@ -29,7 +29,7 @@ interface GoldGoalsProps {
 export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps) {
   const [currentMode, setCurrentMode] = useState(mode);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
-  
+
   // Form states for creating new goal
   const [goalName, setGoalName] = useState('');
   const [targetAmount, setTargetAmount] = useState(100000);
@@ -100,7 +100,7 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
         setGoals([data.data, ...goals]);
         toast.success(`Goal "${goalName}" created successfully! 🎯`);
         setCurrentMode('view');
-        
+
         // Reset form
         setGoalName('');
         setTargetAmount(100000);
@@ -162,7 +162,7 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
         }));
         // Note: data.data might have strict typing, ensure it matches Goal interface structure roughly
         // or re-fetch goals to be safe, but optimistically using return is faster.
-        
+
         toast.success(`₹${amount.toLocaleString()} added to your goal! 🎉`);
       } else {
         toast.error(data.message || 'Failed to update goal');
@@ -196,9 +196,9 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
   // Create Goal Mode
   if (currentMode === 'create') {
     return (
-      <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end justify-center z-50">
+      <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-start justify-center z-50 pt-2">
         <style>{`.zold-hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } .zold-hide-scrollbar::-webkit-scrollbar{ display:none; }`}</style>
-        <div className="bg-white dark:bg-neutral-800 w-full max-w-lg rounded-t-3xl max-h-[90vh] overflow-y-auto zold-hide-scrollbar">
+        <div className="bg-white dark:bg-neutral-800 w-full max-w-lg rounded-t-3xl max-h-[95vh] overflow-y-auto zold-hide-scrollbar rounded-b-[2rem] ">
           {/* Header */}
           <div className="sticky top-0 bg-gradient-to-r from-[#3D3066] to-[#5C4E7F] px-6 py-5 rounded-t-3xl">
             <div className="flex items-center justify-between">
@@ -211,7 +211,7 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
                   <p className="text-white/80 text-sm">Set your savings target</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={onClose}
                 className="bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors"
                 disabled={isLoading}
@@ -221,7 +221,7 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
             </div>
           </div>
 
-          <div className="p-6">
+          <div className="p-6 min-h-[90vh]">
             {/* Goal Name */}
             <div className="mb-5">
               <label className="text-gray-700 dark:text-neutral-300 mb-2 block">Goal Name</label>
@@ -243,11 +243,10 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
                   <button
                     key={cat.id}
                     onClick={() => setCategory(cat.id as Goal['category'])}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      category === cat.id
-                        ? 'border-[#3D3066] dark:border-[#8B7FA8] bg-purple-50 dark:bg-neutral-700'
-                        : 'border-gray-200 dark:border-neutral-700 hover:border-gray-300 dark:hover:border-neutral-600'
-                    }`}
+                    className={`p-4 rounded-xl border-2 transition-all ${category === cat.id
+                      ? 'border-[#3D3066] dark:border-[#8B7FA8] bg-purple-50 dark:bg-neutral-700'
+                      : 'border-gray-200 dark:border-neutral-700 hover:border-gray-300 dark:hover:border-neutral-600'
+                      }`}
                     disabled={isLoading}
                   >
                     <div className="text-3xl mb-2">{cat.icon}</div>
@@ -283,14 +282,13 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
                 <button
                   key={amount}
                   onClick={() => setTargetAmount(amount)}
-                  className={`py-2 px-3 rounded-lg text-sm transition-all ${
-                    targetAmount === amount
-                      ? 'bg-[#3D3066] dark:bg-[#4D3F7F] text-white'
-                      : 'bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-300 hover:bg-gray-200 dark:hover:bg-neutral-600'
-                  }`}
+                  className={`py-2 px-3 rounded-lg text-sm transition-all ${targetAmount === amount
+                    ? 'bg-[#3D3066] dark:bg-[#4D3F7F] text-white'
+                    : 'bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-300 hover:bg-gray-200 dark:hover:bg-neutral-600'
+                    }`}
                   disabled={isLoading}
                 >
-                  ₹{amount/1000}k
+                  ₹{amount / 1000}k
                 </button>
               ))}
             </div>
@@ -319,15 +317,13 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
                 </div>
                 <button
                   onClick={() => setAutoAllocate(!autoAllocate)}
-                  className={`relative w-14 h-7 rounded-full transition-colors ${
-                    autoAllocate ? 'bg-[#3D3066] dark:bg-[#4D3F7F]' : 'bg-gray-300 dark:bg-neutral-600'
-                  }`}
+                  className={`relative w-14 h-7 rounded-full transition-colors ${autoAllocate ? 'bg-[#3D3066] dark:bg-[#4D3F7F]' : 'bg-gray-300 dark:bg-neutral-600'
+                    }`}
                   disabled={isLoading}
                 >
                   <div
-                    className={`absolute top-1 left-1 w-5 h-5 bg-white dark:bg-neutral-300 rounded-full transition-transform ${
-                      autoAllocate ? 'translate-x-7' : ''
-                    }`}
+                    className={`absolute top-1 left-1 w-5 h-5 bg-white dark:bg-neutral-300 rounded-full transition-transform ${autoAllocate ? 'translate-x-7' : ''
+                      }`}
                   />
                 </button>
               </div>
@@ -387,13 +383,15 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
     const remainingAmount = selectedGoal.targetAmount - selectedGoal.currentAmount;
 
     return (
-      <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end justify-center z-50">
+      <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-start justify-center z-50 pt-2">
+
+
         <style>{`.zold-hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } .zold-hide-scrollbar::-webkit-scrollbar{ display:none; }`}</style>
-        <div className="bg-white dark:bg-neutral-800 w-full max-w-lg rounded-t-3xl max-h-[90vh] overflow-y-auto zold-hide-scrollbar">
+        <div className="bg-white dark:bg-neutral-800 w-full max-w-lg rounded-t-3xl max-h-[90vh] overflow-y-auto zold-hide-scrollbar ">
           {/* Header */}
           <div className={`sticky top-0 bg-gradient-to-r ${selectedGoal.color} px-6 py-5 rounded-t-3xl`}>
             <div className="flex items-center justify-between mb-4">
-              <button 
+              <button
                 onClick={() => setSelectedGoal(null)}
                 className="bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors"
               >
@@ -403,7 +401,7 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
                 <button className="bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors">
                   <Edit2 className="w-5 h-5 text-white" />
                 </button>
-                <button 
+                <button
                   onClick={() => handleDeleteGoal(selectedGoal.id)}
                   className="bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors"
                 >
@@ -428,7 +426,7 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
                 <p className={`${milestone.color}`}>{milestone.text}</p>
               </div>
               <div className="relative w-full h-4 bg-gray-200 dark:bg-neutral-700 rounded-full overflow-hidden mb-2">
-                <div 
+                <div
                   className={`absolute top-0 left-0 h-full bg-gradient-to-r ${selectedGoal.color} transition-all duration-500`}
                   style={{ width: `${Math.min(progress, 100)}%` }}
                 />
@@ -473,7 +471,7 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
                     onClick={() => handleAddMoney(selectedGoal.id, amount)}
                     className="bg-[#3D3066] dark:bg-[#4D3F7F] text-white py-3 rounded-xl hover:bg-[#5C4E7F] dark:hover:bg-[#5C4E9F] transition-colors"
                   >
-                    ₹{amount/1000}k
+                    ₹{amount / 1000}k
                   </button>
                 ))}
               </div>
@@ -486,8 +484,8 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
                 <div className="flex-1">
                   <p className="text-gray-900 dark:text-white text-sm">Auto-Allocate {selectedGoal.autoAllocate ? 'Active' : 'Inactive'}</p>
                   <p className="text-gray-600 dark:text-neutral-400 text-xs">
-                    {selectedGoal.autoAllocate 
-                      ? 'Purchases are automatically allocated to this goal' 
+                    {selectedGoal.autoAllocate
+                      ? 'Purchases are automatically allocated to this goal'
                       : 'Enable to auto-allocate purchases'}
                   </p>
                 </div>
@@ -515,9 +513,11 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
 
   // Main View - Goals List
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-end justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-start justify-center z-50 pt-2 rounded-b-[2rem]2">
+
+
       <style>{`.zold-hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } .zold-hide-scrollbar::-webkit-scrollbar{ display:none; }`}</style>
-      <div className="bg-white dark:bg-neutral-800 w-full max-w-lg rounded-t-3xl max-h-[90vh] overflow-y-auto zold-hide-scrollbar">
+      <div className="bg-white dark:bg-neutral-800 w-full max-w-lg rounded-t-3xl min-h-[95vh] overflow-y-auto zold-hide-scrollbar rounded-b-[2rem]">
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-[#3D3066] to-[#5C4E7F] px-6 py-5 rounded-t-3xl">
           <div className="flex items-center justify-between">
@@ -530,7 +530,7 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
                 <p className="text-white/80 text-sm">{goals.length} active goals</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={onClose}
               className="bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors"
             >
@@ -571,10 +571,10 @@ export function GoldGoals({ onClose, mode = 'view', onBuyGold }: GoldGoalsProps)
                         <span className={`text-xs ${milestone.color} flex-shrink-0`}>{progress.toFixed(0)}%</span>
                       </div>
                       <p className="text-gray-600 dark:text-neutral-400 text-sm mb-2">{goal.category.charAt(0).toUpperCase() + goal.category.slice(1)}</p>
-                      
+
                       {/* Progress Bar */}
                       <div className="relative w-full h-2 bg-gray-200 dark:bg-neutral-700 rounded-full overflow-hidden mb-2">
-                        <div 
+                        <div
                           className={`absolute top-0 left-0 h-full bg-gradient-to-r ${goal.color} transition-all duration-500`}
                           style={{ width: `${Math.min(progress, 100)}%` }}
                         />

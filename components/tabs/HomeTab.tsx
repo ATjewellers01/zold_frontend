@@ -32,6 +32,11 @@ import {
 import { HomeTabSkeleton } from "@/components/skeletons/HomeTabSkeleton";
 import { useEffect, useState, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
+// Importing Quick Action Page
+import { GoldGoals } from "../GoldGoals";
+import { GiftGold } from "../GiftGold";
+import { ReferralProgram } from "../ReferralProgram";
+import JewelleryPage from "@/components/JewelleryPage";
 
 interface HomeTabProps {
   isLoading: boolean;
@@ -75,7 +80,7 @@ export function HomeTab({
   onOpenWalletDetails,
 }: HomeTabProps) {
   const router = useRouter();
-  const [isInternalLoading, setIsInternalLoading] = useState(false);
+  const [isInternalLoading, setIsInternalLoading] = useState(true);
   const [goldBuyPrice, setGoldBuyPrice] = useState(6245.5);
   const [goldSellPrice, setGoldSellPrice] = useState(6198.2);
   const priceChange = 1.2;
@@ -88,6 +93,13 @@ export function HomeTab({
   const [totalCoins, setTotalCoins] = useState(0);
   const [coinInventory, setCoinInventory] = useState<CoinInventoryItem[]>([]);
   const [totalCoinValue, setTotalCoinValue] = useState(0);
+  const [activeAction, setActiveAction] = useState<string | null>(null);
+
+
+  const [showGift, setShowGift] = useState(false);
+  const [showRefer, setShowRefer] = useState(false);
+  const [showShop, setShowShop] = useState(false);
+  const [showGoals, setShowGoals] = useState(false);
 
   const getAuthToken = () => {
     if (typeof window !== "undefined") {
@@ -104,57 +116,47 @@ export function HomeTab({
         return;
       }
 
-      try {
-        const ratesRes = await fetch(`${API_URL}/gold/rates/current`);
-        const ratesData = await ratesRes.json();
-        if (ratesData.success) {
-          setGoldBuyPrice(parseFloat(ratesData.data.buyRate) || 6245.5);
-          setGoldSellPrice(parseFloat(ratesData.data.sellRate) || 6198.2);
-        }
-      } catch (error) {
-        console.error("Error fetching gold rates:", error);
+      const results = await Promise.allSettled([
+        fetch(`${API_URL}/gold/rates/current`).then(res => res.json()),
+        fetch(`${API_URL}/gold/wallet/balance`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()),
+        fetch(`${API_URL}/gold/wallet/stats`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()),
+        fetch(`${API_URL}/coins/inventory`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json())
+      ]);
+
+      const [ratesResult, balanceResult, statsResult, coinsResult] = results;
+
+      // Handle Rates
+      if (ratesResult.status === "fulfilled" && ratesResult.value.success) {
+        setGoldBuyPrice(parseFloat(ratesResult.value.data.buyRate) || 6245.5);
+        setGoldSellPrice(parseFloat(ratesResult.value.data.sellRate) || 6198.2);
       }
 
-      const balanceRes = await fetch(`${API_URL}/gold/wallet/balance`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const balanceData = await balanceRes.json();
-
-      if (balanceData.success) {
-        setUserGoldGrams(parseFloat(balanceData.data.goldBalance) || 0);
-        setUserGoldValue(parseFloat(balanceData.data.currentValue) || 0);
-        setRecentTransactions(balanceData.data.recentTransactions || []);
+      // Handle Balance
+      if (balanceResult.status === "fulfilled" && balanceResult.value.success) {
+        setUserGoldGrams(parseFloat(balanceResult.value.data.goldBalance) || 0);
+        setUserGoldValue(parseFloat(balanceResult.value.data.currentValue) || 0);
+        setRecentTransactions(balanceResult.value.data.recentTransactions || []);
       }
 
-      const statsRes = await fetch(`${API_URL}/gold/wallet/stats`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const statsData = await statsRes.json();
-
-      if (statsData.success) {
-        setProfitToday(parseFloat(statsData.data.profitLoss) || 0);
+      // Handle Stats
+      if (statsResult.status === "fulfilled" && statsResult.value.success) {
+        setProfitToday(parseFloat(statsResult.value.data.profitLoss) || 0);
       }
 
-      try {
-        const coinsRes = await fetch(`${API_URL}/coins/inventory`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const coinsData = await coinsRes.json();
-        if (coinsData.success && coinsData.data?.inventory) {
-          const inventory = coinsData.data.inventory.filter(
-            (coin: CoinInventoryItem) => coin.quantity > 0,
-          );
-          setCoinInventory(inventory);
-          const total = inventory.reduce(
-            (sum: number, coin: CoinInventoryItem) => sum + coin.quantity,
-            0,
-          );
-          setTotalCoins(total);
-          setTotalCoinValue(parseFloat(coinsData.data.totalValue) || 0);
-        }
-      } catch (error) {
-        console.error("Error fetching coin inventory:", error);
+      // Handle Inventory
+      if (coinsResult.status === "fulfilled" && coinsResult.value.success && coinsResult.value.data?.inventory) {
+        const inventory = coinsResult.value.data.inventory.filter(
+          (coin: CoinInventoryItem) => coin.quantity > 0,
+        );
+        setCoinInventory(inventory);
+        const total = inventory.reduce(
+          (sum: number, coin: CoinInventoryItem) => sum + coin.quantity,
+          0,
+        );
+        setTotalCoins(total);
+        setTotalCoinValue(parseFloat(coinsResult.value.data.totalValue) || 0);
       }
+
     } catch (error) {
       console.error("Error fetching wallet data:", error);
     } finally {
@@ -167,7 +169,7 @@ export function HomeTab({
 
     const socket: Socket = io(
       process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
-        "http://localhost:5001",
+      "http://localhost:5001",
       {
         transports: ["websocket", "polling"],
         reconnection: true,
@@ -201,6 +203,7 @@ export function HomeTab({
     "1D" | "1W" | "1M" | "1Y"
   >("1D");
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   const priceData = {
     "1D": [
@@ -230,6 +233,10 @@ export function HomeTab({
       { time: "Oct", price: 6245 },
     ],
   };
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (showNotifications) {
@@ -294,6 +301,70 @@ export function HomeTab({
           </button>
         </div>
 
+        {/* ═══════════════════════════════════════════════════════════════
+            LIVE GOLD RATE - Clean Two-Column
+            ═══════════════════════════════════════════════════════════════ */}
+        <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm dark:bg-[#141414]">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="relative flex h-2 w-2 items-center justify-center">
+                <span className="absolute h-2 w-2 animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              </div>
+              <span className="text-sm font-semibold text-[#1a1a1a] dark:text-white">
+                Live Gold Rate
+              </span>
+              <span className="rounded bg-[#D4AF37]/15 px-1.5 py-0.5 text-[9px] font-bold text-[#B8960C]">
+                24K • 999.0
+              </span>
+            </div>
+            <span
+              className={`flex items-center gap-0.5 text-xs font-semibold ${priceChange >= 0 ? "text-emerald-600" : "text-red-500"}`}
+            >
+              {priceChange >= 0 ? (
+                <TrendingUp className="h-3 w-3" />
+              ) : (
+                <TrendingDown className="h-3 w-3" />
+              )}
+              {priceChange >= 0 ? "+" : ""}
+              {priceChange}%
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl 
+  bg-emerald-50
+  border border-emerald-400
+  p-3
+  shadow-[0_6px_18px_rgba(20,184,166,0.25)]">
+
+
+
+              <p className="mb-0.5 text-[10px] font-medium text-emerald-900 uppercase">
+                Buy
+              </p>
+              <p className="text-lg font-bold text-emerald-900">
+                ₹{goldBuyPrice.toFixed(2)}
+                <span className="text-xs font-normal opacity-60">/g</span>
+              </p>
+            </div>
+
+            <div className="rounded-xl 
+  bg-rose-50
+  border border-rose-500/70
+  p-3
+  shadow-[0_6px_18px_rgba(244,63,94,0.25)]">
+              <p className="mb-0.5 text-[10px] font-medium text-rose-800 uppercase">
+                Sell
+              </p>
+              <p className="text-lg font-bold text-red-900">
+                ₹{goldSellPrice.toFixed(2)}
+                <span className="text-xs font-normal opacity-60">/g</span>
+              </p>
+            </div>
+
+          </div>
+        </div>
+
         {/* Premium Gold Portfolio Card */}
         <div className="gold-card relative overflow-hidden rounded-2xl p-5">
           {/* Decorative shine */}
@@ -315,11 +386,10 @@ export function HomeTab({
                     {totalGoldGrams.toFixed(3)}g gold
                   </span>
                   <span
-                    className={`flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold ${
-                      profitToday >= 0
-                        ? "bg-emerald-600/20 text-emerald-800"
-                        : "bg-red-600/20 text-red-800"
-                    }`}
+                    className={`flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold ${profitToday >= 0
+                      ? "bg-emerald-600/20 text-emerald-800"
+                      : "bg-red-600/20 text-red-800"
+                      }`}
                   >
                     {profitToday >= 0 ? (
                       <TrendingUp className="h-3 w-3" />
@@ -401,7 +471,7 @@ export function HomeTab({
         {/* ═══════════════════════════════════════════════════════════════
             BUY & SELL ACTIONS - Professional Design
             ═══════════════════════════════════════════════════════════════ */}
-        <div className="mb-4 flex gap-3">
+        <div className="mb-4 flex gap-3 mt-4">
           {/* Buy Gold */}
           <button
             onClick={onBuyGold}
@@ -409,8 +479,8 @@ export function HomeTab({
           >
             <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
             <div className="relative flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#D4AF37]">
-                <ArrowUpRight className="h-5 w-5 text-[#1a1a1a]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg sm:rounded-xl bg-[#D4AF37]">
+                <ArrowUpRight className="h-3.5 w-3.5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-[#1a1a1a]" />
               </div>
               <div className="text-left">
                 <p className="text-sm font-bold text-white">Buy Gold</p>
@@ -536,56 +606,6 @@ export function HomeTab({
           </div>
         </div> */}
 
-        {/* ═══════════════════════════════════════════════════════════════
-            LIVE GOLD RATE - Clean Two-Column
-            ═══════════════════════════════════════════════════════════════ */}
-        <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm dark:bg-[#141414]">
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="relative flex h-2 w-2 items-center justify-center">
-                <span className="absolute h-2 w-2 animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              </div>
-              <span className="text-sm font-semibold text-[#1a1a1a] dark:text-white">
-                Live Gold Rate
-              </span>
-              <span className="rounded bg-[#D4AF37]/15 px-1.5 py-0.5 text-[9px] font-bold text-[#B8960C]">
-                24K • 999.0
-              </span>
-            </div>
-            <span
-              className={`flex items-center gap-0.5 text-xs font-semibold ${priceChange >= 0 ? "text-emerald-600" : "text-red-500"}`}
-            >
-              {priceChange >= 0 ? (
-                <TrendingUp className="h-3 w-3" />
-              ) : (
-                <TrendingDown className="h-3 w-3" />
-              )}
-              {priceChange >= 0 ? "+" : ""}
-              {priceChange}%
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-emerald-50/50 p-3 dark:bg-emerald-900/10">
-              <p className="mb-0.5 text-[10px] font-medium text-emerald-700/70 uppercase dark:text-emerald-400/70">
-                Buy
-              </p>
-              <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
-                ₹{goldBuyPrice.toFixed(2)}
-                <span className="text-xs font-normal opacity-60">/g</span>
-              </p>
-            </div>
-            <div className="rounded-xl bg-rose-50/50 p-3 dark:bg-rose-900/10">
-              <p className="mb-0.5 text-[10px] font-medium text-rose-700/70 uppercase dark:text-rose-400/70">
-                Sell
-              </p>
-              <p className="text-lg font-bold text-rose-700 dark:text-rose-400">
-                ₹{goldSellPrice.toFixed(2)}
-                <span className="text-xs font-normal opacity-60">/g</span>
-              </p>
-            </div>
-          </div>
-        </div>
 
         {/* ═══════════════════════════════════════════════════════════════
             QUICK ACTIONS GRID
@@ -599,27 +619,28 @@ export function HomeTab({
               {
                 icon: Target,
                 label: "Goals",
-                onClick: onOpenGoldGoals,
+                onClick: () => setShowGoals(true),
                 color: "#8B2942",
               },
               {
                 icon: Gift,
                 label: "Gift",
-                onClick: onOpenGiftGold,
+                onClick: () => setShowGift(true),
                 color: "#D4AF37",
               },
               {
                 icon: Users,
                 label: "Refer",
-                onClick: onOpenReferral,
+                onClick: () => setShowRefer(true),
                 color: "#3B82F6",
               },
               {
                 icon: ShoppingBag,
                 label: "Shop",
-                onClick: onJewellery,
+                onClick: () => setShowShop(true),
                 color: "#8B5CF6",
               },
+
             ].map((action, idx) => (
               <button
                 key={idx}
@@ -658,11 +679,10 @@ export function HomeTab({
                 <button
                   key={tf}
                   onClick={() => setChartTimeframe(tf)}
-                  className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
-                    chartTimeframe === tf
-                      ? "bg-white text-[#1a1a1a] shadow-sm dark:bg-[#333] dark:text-white"
-                      : "text-[#888] hover:text-[#1a1a1a] dark:hover:text-white"
-                  }`}
+                  className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${chartTimeframe === tf
+                    ? "bg-white text-[#1a1a1a] shadow-sm dark:bg-[#333] dark:text-white"
+                    : "text-[#888] hover:text-[#1a1a1a] dark:hover:text-white"
+                    }`}
                 >
                   {tf}
                 </button>
@@ -670,62 +690,68 @@ export function HomeTab({
             </div>
           </div>
 
-          <div className="h-40">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={priceData[chartTimeframe]}>
-                <defs>
-                  <linearGradient
-                    id="goldAreaGradient"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop offset="0%" stopColor="#D4AF37" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#D4AF37" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#f0f0f0"
-                  className="dark:stroke-[#333]"
-                />
-                <XAxis
-                  dataKey="time"
-                  stroke="#888"
-                  fontSize={10}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  stroke="#888"
-                  fontSize={10}
-                  tickLine={false}
-                  axisLine={false}
-                  domain={["dataMin - 50", "dataMax + 50"]}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#1a1a1a",
-                    border: "none",
-                    borderRadius: "8px",
-                    color: "#fff",
-                    fontSize: "12px",
-                  }}
-                  formatter={(value) => [
-                    `₹${Number(value).toLocaleString()}`,
-                    "Price",
-                  ]}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="price"
-                  stroke="#D4AF37"
-                  strokeWidth={2}
-                  fill="url(#goldAreaGradient)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="h-40" style={{ minHeight: '160px' }}>
+            {isMounted ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={priceData[chartTimeframe]}>
+                  <defs>
+                    <linearGradient
+                      id="goldAreaGradient"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="0%" stopColor="#D4AF37" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#D4AF37" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#f0f0f0"
+                    className="dark:stroke-[#333]"
+                  />
+                  <XAxis
+                    dataKey="time"
+                    stroke="#888"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    stroke="#888"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                    domain={["dataMin - 50", "dataMax + 50"]}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1a1a1a",
+                      border: "none",
+                      borderRadius: "8px",
+                      color: "#fff",
+                      fontSize: "12px",
+                    }}
+                    formatter={(value) => [
+                      `₹${Number(value).toLocaleString()}`,
+                      "Price",
+                    ]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="price"
+                    stroke="#D4AF37"
+                    strokeWidth={2}
+                    fill="url(#goldAreaGradient)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-full items-center justify-center text-gray-400">
+                <BarChart3 className="h-8 w-8 animate-pulse" />
+              </div>
+            )}
           </div>
 
           <div className="mt-3 grid grid-cols-3 gap-2 border-t border-[#f0f0f0] pt-3 dark:border-[#333]">
@@ -866,19 +892,17 @@ export function HomeTab({
               recentTransactions.slice(0, 3).map((tx, idx) => (
                 <div
                   key={tx.id}
-                  className={`flex items-center justify-between px-4 py-3.5 ${
-                    idx < 2
-                      ? "border-b border-[#f0f0f0] dark:border-[#333]"
-                      : ""
-                  }`}
+                  className={`flex items-center justify-between px-4 py-3.5 ${idx < 2
+                    ? "border-b border-[#f0f0f0] dark:border-[#333]"
+                    : ""
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-full ${
-                        tx.type === "BUY"
-                          ? "bg-emerald-50 dark:bg-emerald-900/20"
-                          : "bg-red-50 dark:bg-red-900/20"
-                      }`}
+                      className={`flex h-9 w-9 items-center justify-center rounded-full ${tx.type === "BUY"
+                        ? "bg-emerald-50 dark:bg-emerald-900/20"
+                        : "bg-red-50 dark:bg-red-900/20"
+                        }`}
                     >
                       {tx.type === "BUY" ? (
                         <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -960,12 +984,11 @@ export function HomeTab({
       </div>
 
       {/* Notifications Modal */}
-      {showNotifications && (
-        <NotificationsPage
-          isOpen={showNotifications}
-          onClose={() => setShowNotifications(false)}
-        />
-      )}
+      {showGift && <GiftGold onClose={() => setShowGift(false)} />}
+      {showRefer && <ReferralProgram onClose={() => setShowRefer(false)} />}
+      {showShop && <JewelleryPage onClose={() => setShowShop(false)} />}
+      {showGoals && <GoldGoals onClose={() => setShowGoals(false)} />}
+
     </div>
   );
-}
+} 
