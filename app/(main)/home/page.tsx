@@ -10,8 +10,10 @@ export default function HomePage() {
         <HomeTab
             isLoading={false}
             onLoadingComplete={() => { }}
-            onBuyGold={() => router.push("/buy-gold")}
-            onSellGold={() => router.push("/sell-gold")}
+            onBuyGold={() => router.push("/buy-sell?metal=gold&action=buy")}
+            onSellGold={() => router.push("/buy-sell?metal=gold&action=sell")}
+            onBuySilver={() => router.push("/buy-sell?metal=silver&action=buy")}
+            onSellSilver={() => router.push("/buy-sell?metal=silver&action=sell")}
             onJewellery={() => router.push("/jewellery")}
             onOpenSIPCalculator={() => router.push("/sip-calculator")}
             onOpenReferral={() => router.push("/referral")}

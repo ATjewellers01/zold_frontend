@@ -1,0 +1,888 @@
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { clearCart } from "../../components/store/cartSlice";
+import { RootState } from "../../components/store/store";
+import Image from "next/image";
+import {
+    ArrowLeft,
+    ShieldCheck,
+    CreditCard,
+    Smartphone,
+    Building2,
+    Wallet,
+    ChevronRight,
+    ChevronDown,
+    CheckCircle2,
+    Lock,
+    Truck,
+    Package,
+    Sparkles,
+    AlertCircle,
+    Copy,
+    Check,
+    MapPin,
+    Pencil,
+    Plus,
+    X,
+    Home,
+    Briefcase,
+} from "lucide-react";
+
+import img1 from "../../components/images/1gmZold.webp";
+import img2 from "../../components/images/2gmZold.webp";
+import img5 from "../../components/images/5gmZold.webp";
+import img10 from "../../components/images/10gmZold.webp";
+
+const coinImages: Record<number, any> = { 1: img1, 2: img2, 5: img5, 10: img10 };
+
+type PaymentMethod = "upi" | "card" | "netbanking" | "wallet";
+type OrderStep = "address" | "payment" | "confirmation";
+
+const GST_RATE = 3;
+const DELIVERY_CHARGE = 0;
+
+const upiApps = [
+    { id: "gpay", name: "Google Pay", color: "#4285F4", letter: "G" },
+    { id: "phonepe", name: "PhonePe", color: "#5F259F", letter: "P" },
+    { id: "paytm", name: "Paytm", color: "#00BAF2", letter: "P" },
+    { id: "bharatpe", name: "BharatPe", color: "#E63B2E", letter: "B" },
+];
+
+const banks = [
+    "State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank",
+    "Kotak Mahindra Bank", "Punjab National Bank", "Bank of Baroda", "Canara Bank",
+];
+
+const wallets = [
+    { id: "paytm-w", name: "Paytm Wallet", color: "#00BAF2" },
+    { id: "amazon", name: "Amazon Pay", color: "#FF9900" },
+    { id: "mobikwik", name: "MobiKwik", color: "#1A7AFF" },
+    { id: "freecharge", name: "Freecharge", color: "#EF5318" },
+];
+
+const INDIAN_STATES = [
+    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+    "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+    "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+    "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+    "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+    "Andaman and Nicobar Islands", "Chandigarh", "Delhi", "Jammu and Kashmir",
+    "Ladakh", "Lakshadweep", "Puducherry",
+];
+
+function formatTime(s: number) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, "0")}`;
+}
+
+// ── Address type ──
+interface Address {
+    id: string;
+    label: "Home" | "Work" | "Other";
+    name: string;
+    line1: string;
+    line2: string;
+    city: string;
+    state: string;
+    pin: string;
+    phone: string;
+}
+
+type AddressFormData = Omit<Address, "id">;
+
+const BLANK: AddressFormData = {
+    label: "Home", name: "", line1: "", line2: "",
+    city: "", state: "", pin: "", phone: "",
+};
+
+// ── Reusable Address Form ──
+function AddressForm({
+    data, errors, onChange,
+}: {
+    data: AddressFormData;
+    errors: Partial<Record<keyof AddressFormData, string>>;
+    onChange: (d: AddressFormData) => void;
+}) {
+    const inp = (key: keyof AddressFormData, placeholder: string, type = "text") => (
+        <div>
+            <input
+                type={type}
+                value={data[key]}
+                onChange={e => onChange({ ...data, [key]: e.target.value })}
+                placeholder={placeholder}
+                className={`w-full border rounded-xl px-3 py-2.5 text-sm text-gray-800 focus:outline-none transition-colors ${errors[key]
+                    ? "border-red-400 bg-red-50"
+                    : "border-gray-200 focus:border-[#B8960C] focus:ring-1 focus:ring-[#B8960C]/20"
+                    }`}
+            />
+            {errors[key] && <p className="text-xs text-red-500 mt-1">{errors[key]}</p>}
+        </div>
+    );
+
+    return (
+        <div className="space-y-3">
+            {/* Label toggle */}
+            <div className="flex gap-2">
+                {(["Home", "Work", "Other"] as const).map(lbl => (
+                    <button
+                        key={lbl} type="button"
+                        onClick={() => onChange({ ...data, label: lbl })}
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg border-2 transition-all ${data.label === lbl
+                            ? "border-[#B8960C] bg-[#B8960C] text-white"
+                            : "border-gray-200 text-gray-500 hover:border-gray-300"
+                            }`}
+                    >
+                        {lbl}
+                    </button>
+                ))}
+            </div>
+
+            {inp("name", "Full Name")}
+            {inp("phone", "Phone Number", "tel")}
+            {inp("line1", "Address Line 1")}
+            {inp("line2", "Address Line 2 (optional)")}
+
+            <div className="grid grid-cols-2 gap-2">
+                {inp("city", "City")}
+                <div>
+                    <input
+                        type="text"
+                        value={data.pin}
+                        onChange={e => onChange({ ...data, pin: e.target.value.replace(/\D/g, "").slice(0, 6) })}
+                        placeholder="PIN Code"
+                        className={`w-full border rounded-xl px-3 py-2.5 text-sm text-gray-800 focus:outline-none transition-colors ${errors.pin
+                            ? "border-red-400 bg-red-50"
+                            : "border-gray-200 focus:border-[#B8960C] focus:ring-1 focus:ring-[#B8960C]/20"
+                            }`}
+                    />
+                    {errors.pin && <p className="text-xs text-red-500 mt-1">{errors.pin}</p>}
+                </div>
+            </div>
+
+            <div className="relative">
+                <select
+                    value={data.state}
+                    onChange={e => onChange({ ...data, state: e.target.value })}
+                    className={`w-full border rounded-xl px-3 py-2.5 text-sm text-gray-800 appearance-none focus:outline-none transition-colors ${errors.state
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-200 focus:border-[#B8960C] focus:ring-1 focus:ring-[#B8960C]/20"
+                        }`}
+                >
+                    <option value="">Select State</option>
+                    {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                {errors.state && <p className="text-xs text-red-500 mt-1">{errors.state}</p>}
+            </div>
+        </div>
+    );
+}
+
+// ── Label badge helper ──
+function LabelBadge({ label }: { label: Address["label"] }) {
+    const cls =
+        label === "Home" ? "bg-blue-50 text-blue-600" :
+            label === "Work" ? "bg-purple-50 text-purple-600" :
+                "bg-gray-100 text-gray-500";
+    const Icon = label === "Home" ? Home : label === "Work" ? Briefcase : null;
+    return (
+        <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${cls}`}>
+            {Icon && <Icon size={10} />}
+            {label}
+        </span>
+    );
+}
+
+// ═══════════════════════════════════════════════════════
+//  Main Page
+// ═══════════════════════════════════════════════════════
+export default function CheckoutPage() {
+    const router = useRouter();
+    const dispatch = useDispatch();
+    const { items } = useSelector((state: RootState) => state.cart);
+
+    // ── Timer (carries over from cart — stored in sessionStorage) ──
+    const [timeLeft, setTimeLeft] = useState<number>(() => {
+        if (typeof window !== "undefined") {
+            const saved = sessionStorage.getItem("cartSessionEnd");
+            if (saved) {
+                const remaining = Math.floor((parseInt(saved) - Date.now()) / 1000);
+                return remaining > 0 ? remaining : 0;
+            }
+        }
+        return 300;
+    });
+    const [sessionExpired, setSessionExpired] = useState(false);
+
+    // ── Checkout state ──
+    const [step, setStep] = useState<OrderStep>("address");
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("upi");
+    const [selectedUpiApp, setSelectedUpiApp] = useState("gpay");
+    const [upiId, setUpiId] = useState("");
+    const [selectedBank, setSelectedBank] = useState(banks[0]);
+    const [selectedWallet, setSelectedWallet] = useState(wallets[0].id);
+    const [cardNumber, setCardNumber] = useState("");
+    const [cardName, setCardName] = useState("");
+    const [cardExpiry, setCardExpiry] = useState("");
+    const [cardCvv, setCardCvv] = useState("");
+    const [paying, setPaying] = useState(false);
+    const [paid, setPaid] = useState(false);
+    const [copiedUpi, setCopiedUpi] = useState(false);
+
+    // ── Address state ──
+    const [addresses, setAddresses] = useState<Address[]>([
+        {
+            id: "addr-1", label: "Home", name: "Rahul Sharma",
+            line1: "A-12, Sunshine Apartments", line2: "Sector 18, Noida",
+            city: "Noida", state: "Uttar Pradesh", pin: "201301", phone: "+91 98765 43210",
+        },
+        {
+            id: "addr-2", label: "Work", name: "Rahul Sharma",
+            line1: "Tower B, 5th Floor, Cyber City", line2: "DLF Phase 2, Gurugram",
+            city: "Gurugram", state: "Haryana", pin: "122002", phone: "+91 98765 43210",
+        },
+    ]);
+    const [selectedAddrId, setSelectedAddrId] = useState("addr-1");
+    const [showPanel, setShowPanel] = useState(false);
+    // null = no form open; "new" = add-new form; otherwise = id of addr being edited
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [formData, setFormData] = useState<AddressFormData>(BLANK);
+    const [formErrors, setFormErrors] = useState<Partial<Record<keyof AddressFormData, string>>>({});
+
+    const selectedAddr = addresses.find(a => a.id === selectedAddrId) ?? addresses[0];
+
+    // ── Address helpers ──
+    const openEdit = (addr: Address) => {
+        setEditingId(addr.id);
+        setFormData({ label: addr.label, name: addr.name, line1: addr.line1, line2: addr.line2, city: addr.city, state: addr.state, pin: addr.pin, phone: addr.phone });
+        setFormErrors({});
+    };
+    const openAdd = () => { setEditingId("new"); setFormData(BLANK); setFormErrors({}); };
+    const cancelForm = () => { setEditingId(null); setFormErrors({}); };
+
+    const validate = (): boolean => {
+        const e: typeof formErrors = {};
+        if (!formData.name.trim()) e.name = "Name is required";
+        if (!formData.line1.trim()) e.line1 = "Address line 1 is required";
+        if (!formData.city.trim()) e.city = "City is required";
+        if (!formData.state) e.state = "State is required";
+        if (!/^\d{6}$/.test(formData.pin)) e.pin = "Enter valid 6-digit PIN";
+        if (!/^[+\d\s-]{10,}$/.test(formData.phone)) e.phone = "Enter valid phone number";
+        setFormErrors(e);
+        return Object.keys(e).length === 0;
+    };
+
+    const saveAddress = () => {
+        if (!validate()) return;
+        if (editingId === "new") {
+            const newAddr: Address = { ...formData, id: `addr-${Date.now()}` };
+            setAddresses(prev => [...prev, newAddr]);
+            setSelectedAddrId(newAddr.id);
+        } else {
+            setAddresses(prev => prev.map(a => a.id === editingId ? { ...formData, id: a.id } : a));
+        }
+        setEditingId(null);
+        setShowPanel(false);
+    };
+
+    const deleteAddr = (id: string) => {
+        setAddresses(prev => prev.filter(a => a.id !== id));
+        if (selectedAddrId === id) {
+            const remaining = addresses.filter(a => a.id !== id);
+            setSelectedAddrId(remaining[0]?.id ?? "");
+        }
+    };
+
+    // ── Totals ──
+    const subtotal = useMemo(() => items.reduce((s, i) => s + i.price * i.quantity, 0), [items]);
+    const gst = (subtotal * GST_RATE) / 100;
+    const total = subtotal + gst + DELIVERY_CHARGE;
+    const totalWeight = items.reduce((s, i) => s + i.weight * i.quantity, 0);
+
+    // ── Timer countdown ──
+    useEffect(() => {
+        if (timeLeft <= 0) { setSessionExpired(true); return; }
+        const t = setInterval(() => {
+            setTimeLeft((p) => {
+                if (p <= 1) { setSessionExpired(true); return 0; }
+                return p - 1;
+            });
+        }, 1000);
+        return () => clearInterval(t);
+    }, [timeLeft]);
+
+    // ── Clear cart on expire ──
+    useEffect(() => {
+        if (sessionExpired) {
+            dispatch(clearCart());
+            sessionStorage.removeItem("cartSessionEnd");
+        }
+    }, [sessionExpired, dispatch]);
+
+    // ── Redirect if no items ──
+    useEffect(() => {
+        if (!sessionExpired && items.length === 0) router.push("/buy-coins");
+    }, [items, sessionExpired, router]);
+
+    // ── Format card helpers ──
+    const formatCard = (v: string) => v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+    const formatExpiry = (v: string) => {
+        const d = v.replace(/\D/g, "").slice(0, 4);
+        return d.length >= 3 ? `${d.slice(0, 2)}/${d.slice(2)}` : d;
+    };
+
+    const handlePay = async () => {
+        setPaying(true);
+        await new Promise((r) => setTimeout(r, 2000));
+        setPaying(false);
+        setPaid(true);
+        dispatch(clearCart());
+        sessionStorage.removeItem("cartSessionEnd");
+    };
+
+    const timerColor = timeLeft <= 60 ? "text-red-500" : timeLeft <= 120 ? "text-orange-500" : "text-green-600";
+    const timerBg = timeLeft <= 60 ? "bg-red-50 border-red-200" : timeLeft <= 120 ? "bg-orange-50 border-orange-200" : "bg-green-50 border-green-200";
+
+    // ── SESSION EXPIRED SCREEN ──
+    if (sessionExpired) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center p-4">
+                <div className="text-center max-w-sm">
+                    <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <AlertCircle className="h-10 w-10 text-red-500" />
+                    </div>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Session Expired</h1>
+                    <p className="text-gray-500 mb-2">Your 5-minute checkout session has expired and your cart has been cleared for security.</p>
+                    <p className="text-sm text-gray-400 mb-8">Please add items to your cart again and complete payment within 5 minutes.</p>
+                    <button
+                        onClick={() => router.push("/buy-coins")}
+                        className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#B8960C] to-[#D4AF37] text-white font-bold shadow-lg hover:shadow-xl transition-all"
+                    >
+                        Return to Shop
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // ── PAYMENT SUCCESS SCREEN ──
+    if (paid) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-[#fdfcf5] to-white flex items-center justify-center p-4">
+                <div className="text-center max-w-md w-full">
+                    <div className="relative w-24 h-24 mx-auto mb-6">
+                        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center">
+                            <CheckCircle2 className="h-12 w-12 text-green-500" />
+                        </div>
+                        <Sparkles className="absolute -top-2 -right-2 h-7 w-7 text-yellow-400 animate-pulse" />
+                    </div>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Order Placed! 🎉</h1>
+                    <p className="text-gray-500 mb-6">Your gold coins are on their way. You&apos;ll receive a confirmation shortly.</p>
+
+                    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-lg mb-6 text-left">
+                        <div className="flex justify-between text-sm mb-3">
+                            <span className="text-gray-500">Order ID</span>
+                            <span className="font-bold text-gray-800">#ZG{Date.now().toString().slice(-8)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm mb-3">
+                            <span className="text-gray-500">Total Paid</span>
+                            <span className="font-bold text-[#B8960C]">₹{total.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Estimated Delivery</span>
+                            <span className="font-bold text-gray-800">2–3 Business Days</span>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={() => router.push("/home")}
+                        className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#B8960C] to-[#D4AF37] text-white font-bold shadow-lg hover:shadow-xl transition-all"
+                    >
+                        Back to Home
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-[#f6f6f2]">
+            {/* ── Header ── */}
+            <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
+                <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <button onClick={() => router.back()} className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+                            <ArrowLeft size={20} className="text-gray-600" />
+                        </button>
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-[#B8960C] flex items-center justify-center text-white font-bold text-sm">Z</div>
+                            <span className="font-bold text-[#B8960C] text-lg hidden sm:block">ZOLD GOLD</span>
+                        </div>
+                        <span className="text-gray-400 text-sm hidden sm:block">/ Secure Checkout</span>
+                    </div>
+
+                    {/* Timer */}
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-bold ${timerBg} ${timerColor}`}>
+                        <AlertCircle size={14} />
+                        <span>Session: {formatTime(timeLeft)}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <Lock size={12} className="text-green-500" />
+                        <span className="hidden sm:block">128-bit SSL</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Step Progress ── */}
+            <div className="bg-white border-b border-gray-100">
+                <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-2 text-xs font-medium">
+                    {(["address", "payment", "confirmation"] as OrderStep[]).map((s, i) => (
+                        <div key={s} className="flex items-center gap-2">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step === s ? "bg-[#B8960C] text-white" : i < ["address", "payment", "confirmation"].indexOf(step) ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400"}`}>
+                                {i < ["address", "payment", "confirmation"].indexOf(step) ? <Check size={12} /> : i + 1}
+                            </div>
+                            <span className={step === s ? "text-[#B8960C] font-bold" : "text-gray-400 capitalize"}>{s}</span>
+                            {i < 2 && <ChevronRight size={14} className="text-gray-300" />}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* ── Main Layout ── */}
+            <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
+
+                {/* LEFT – Address + Payment */}
+                <div className="space-y-4">
+
+                    {/* ════ DELIVERY ADDRESS CARD ════ */}
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+
+                        {/* Header row */}
+                        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
+                            <div className="flex items-center gap-2">
+                                <MapPin size={18} className="text-[#B8960C]" />
+                                <h2 className="font-bold text-gray-800">Delivery Address</h2>
+                            </div>
+                            <button
+                                onClick={() => { setShowPanel(p => !p); setEditingId(null); }}
+                                className="flex items-center gap-1.5 text-xs font-semibold text-[#B8960C] hover:underline"
+                            >
+                                {showPanel ? <X size={13} /> : <Pencil size={13} />}
+                                {showPanel ? "Done" : "Change"}
+                            </button>
+                        </div>
+
+                        {/* ── Collapsed: show selected address summary ── */}
+                        {!showPanel && selectedAddr && (
+                            <div className="px-5 py-4">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-[#faeeb1] flex items-center justify-center text-[#B8960C] font-bold shrink-0 text-sm">
+                                        {selectedAddr.name.charAt(0)}
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <p className="font-bold text-gray-800">{selectedAddr.name}</p>
+                                            <LabelBadge label={selectedAddr.label} />
+                                        </div>
+                                        <p className="text-sm text-gray-600 mt-0.5">
+                                            {selectedAddr.line1}{selectedAddr.line2 ? `, ${selectedAddr.line2}` : ""}
+                                        </p>
+                                        <p className="text-sm text-gray-600">{selectedAddr.city}, {selectedAddr.state} — {selectedAddr.pin}</p>
+                                        <p className="text-sm text-gray-500 mt-1">{selectedAddr.phone}</p>
+                                    </div>
+                                    {/* Quick-edit the selected address */}
+                                    <button
+                                        onClick={() => { setShowPanel(true); openEdit(selectedAddr); }}
+                                        className="text-gray-400 hover:text-[#B8960C] p-1.5 rounded-lg hover:bg-[#fdfcf5] transition-colors"
+                                        title="Edit address"
+                                    >
+                                        <Pencil size={15} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── Expanded panel: list + forms ── */}
+                        {showPanel && (
+                            <div className="px-5 py-4 space-y-3">
+
+                                {/* Saved addresses */}
+                                {addresses.map(addr => (
+                                    <div key={addr.id}>
+
+                                        {/* Address card (not in edit mode) */}
+                                        {editingId !== addr.id && (
+                                            <label
+                                                className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedAddrId === addr.id
+                                                    ? "border-[#B8960C] bg-[#fdfcf5]"
+                                                    : "border-gray-100 hover:border-gray-200"
+                                                    }`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    checked={selectedAddrId === addr.id}
+                                                    onChange={() => setSelectedAddrId(addr.id)}
+                                                    className="accent-[#B8960C] mt-1 shrink-0"
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <span className="font-bold text-gray-800 text-sm">{addr.name}</span>
+                                                        <LabelBadge label={addr.label} />
+                                                    </div>
+                                                    <p className="text-xs text-gray-600 mt-0.5 truncate">
+                                                        {addr.line1}{addr.line2 ? `, ${addr.line2}` : ""}
+                                                    </p>
+                                                    <p className="text-xs text-gray-600">{addr.city}, {addr.state} — {addr.pin}</p>
+                                                    <p className="text-xs text-gray-500 mt-0.5">{addr.phone}</p>
+                                                </div>
+
+                                                {/* Edit / Delete actions */}
+                                                <div className="flex flex-col gap-1.5 shrink-0">
+                                                    <button
+                                                        type="button"
+                                                        onClick={e => { e.preventDefault(); openEdit(addr); }}
+                                                        className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-[#B8960C] hover:bg-[#faeeb1] transition-colors"
+                                                        title="Edit"
+                                                    >
+                                                        <Pencil size={13} />
+                                                    </button>
+                                                    {addresses.length > 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={e => { e.preventDefault(); deleteAddr(addr.id); }}
+                                                            className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                                            title="Delete"
+                                                        >
+                                                            <X size={13} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </label>
+                                        )}
+
+                                        {/* Inline edit form */}
+                                        {editingId === addr.id && (
+                                            <div className="border-2 border-[#B8960C] rounded-xl p-4 bg-[#fdfcf5] space-y-3">
+                                                <p className="text-sm font-bold text-gray-800">Edit Address</p>
+                                                <AddressForm data={formData} errors={formErrors} onChange={setFormData} />
+                                                <div className="flex gap-2 pt-1">
+                                                    <button
+                                                        onClick={saveAddress}
+                                                        className="flex-1 py-2.5 rounded-xl bg-[#B8960C] text-white text-sm font-bold hover:bg-[#9a7c0a] transition-colors"
+                                                    >
+                                                        Save Address
+                                                    </button>
+                                                    <button
+                                                        onClick={cancelForm}
+                                                        className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-500 font-semibold hover:bg-gray-50 transition-colors"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+
+                                {/* Add new address */}
+                                {editingId !== "new" ? (
+                                    <button
+                                        onClick={openAdd}
+                                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed border-gray-200 text-sm font-semibold text-gray-500 hover:border-[#B8960C] hover:text-[#B8960C] hover:bg-[#fdfcf5] transition-all"
+                                    >
+                                        <Plus size={16} /> Add New Address
+                                    </button>
+                                ) : (
+                                    <div className="border-2 border-[#B8960C] rounded-xl p-4 bg-[#fdfcf5] space-y-3">
+                                        <p className="text-sm font-bold text-gray-800">New Address</p>
+                                        <AddressForm data={formData} errors={formErrors} onChange={setFormData} />
+                                        <div className="flex gap-2 pt-1">
+                                            <button
+                                                onClick={saveAddress}
+                                                className="flex-1 py-2.5 rounded-xl bg-[#B8960C] text-white text-sm font-bold hover:bg-[#9a7c0a] transition-colors"
+                                            >
+                                                Save Address
+                                            </button>
+                                            <button
+                                                onClick={cancelForm}
+                                                className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-500 font-semibold hover:bg-gray-50 transition-colors"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* ════ PAYMENT METHODS ════ */}
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-50">
+                            <Lock size={16} className="text-green-500" />
+                            <h2 className="font-bold text-gray-800">Payment Method</h2>
+                            <span className="ml-auto text-xs text-gray-400 flex items-center gap-1"><ShieldCheck size={12} className="text-green-500" /> Secure</span>
+                        </div>
+
+                        <div className="flex border-b border-gray-100 overflow-x-auto">
+                            {([
+                                { id: "upi", label: "UPI", icon: Smartphone },
+                                { id: "card", label: "Card", icon: CreditCard },
+                                { id: "netbanking", label: "Net Banking", icon: Building2 },
+                                { id: "wallet", label: "Wallet", icon: Wallet },
+                            ] as { id: PaymentMethod; label: string; icon: any }[]).map(({ id, label, icon: Icon }) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setPaymentMethod(id)}
+                                    className={`flex-1 min-w-[90px] flex flex-col items-center gap-1.5 py-3.5 text-xs font-semibold transition-all border-b-2 ${paymentMethod === id ? "border-[#B8960C] text-[#B8960C] bg-[#fdfcf5]" : "border-transparent text-gray-500 hover:bg-gray-50"}`}
+                                >
+                                    <Icon size={18} />
+                                    <span>{label}</span>
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="p-5">
+                            {/* UPI */}
+                            {paymentMethod === "upi" && (
+                                <div className="space-y-4">
+                                    <p className="text-sm font-semibold text-gray-700 mb-3">Select UPI App</p>
+                                    <div className="grid grid-cols-4 gap-3">
+                                        {upiApps.map((app) => (
+                                            <button
+                                                key={app.id}
+                                                onClick={() => setSelectedUpiApp(app.id)}
+                                                className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${selectedUpiApp === app.id ? "border-[#B8960C] bg-[#fdfcf5]" : "border-gray-100 hover:border-gray-200"}`}
+                                            >
+                                                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg" style={{ backgroundColor: app.color }}>
+                                                    {app.letter}
+                                                </div>
+                                                <span className="text-xs font-medium text-gray-600 text-center leading-tight">{app.name}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <div className="mt-4 pt-4 border-t border-dashed border-gray-200">
+                                        <p className="text-sm font-semibold text-gray-900 mb-2">Or enter UPI ID</p>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={upiId}
+                                                onChange={(e) => setUpiId(e.target.value)}
+                                                placeholder="yourname@upi"
+                                                className="text-black flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#B8960C] focus:ring-1 focus:ring-[#B8960C]/30"
+                                            />
+                                            <button className="px-4 py-2.5 bg-[#B8960C] text-white text-sm font-bold rounded-xl hover:bg-[#9a7c0a] transition-colors">
+                                                Verify
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* CARD */}
+                            {paymentMethod === "card" && (
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block">Card Number</label>
+                                        <input
+                                            type="text"
+                                            value={cardNumber}
+                                            onChange={(e) => setCardNumber(formatCard(e.target.value))}
+                                            placeholder="0000 0000 0000 0000"
+                                            className="text-black w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-mono tracking-widest focus:outline-none focus:border-[#B8960C] focus:ring-1 focus:ring-[#B8960C]/30"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block">Cardholder Name</label>
+                                        <input
+                                            type="text"
+                                            value={cardName}
+                                            onChange={(e) => setCardName(e.target.value)}
+                                            placeholder="As printed on card"
+                                            className="text-black w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#B8960C] focus:ring-1 focus:ring-[#B8960C]/30"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block">Expiry</label>
+                                            <input
+                                                type="text"
+                                                value={cardExpiry}
+                                                onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
+                                                placeholder="MM/YY"
+                                                className="text-black w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#B8960C] focus:ring-1 focus:ring-[#B8960C]/30"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block">CVV</label>
+                                            <input
+                                                type="password"
+                                                value={cardCvv}
+                                                onChange={(e) => setCardCvv(e.target.value.slice(0, 4))}
+                                                placeholder="•••"
+                                                className="text-black w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#B8960C] focus:ring-1 focus:ring-[#B8960C]/30"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-gray-400 mt-1">
+                                        <Lock size={11} className="text-green-500" />
+                                        <span>Your card details are encrypted and secure</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* NET BANKING */}
+                            {paymentMethod === "netbanking" && (
+                                <div>
+                                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Select Your Bank</label>
+                                    <div className="relative">
+                                        <select
+                                            value={selectedBank}
+                                            onChange={(e) => setSelectedBank(e.target.value)}
+                                            className="text-black w-full border border-gray-200 rounded-xl px-4 py-3 text-sm appearance-none focus:outline-none focus:border-[#B8960C] focus:ring-1 focus:ring-[#B8960C]/30 bg-white"
+                                        >
+                                            {banks.map((b) => <option key={b} value={b}>{b}</option>)}
+                                        </select>
+                                        <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                    </div>
+                                    <p className="mt-3 text-xs text-gray-400">You will be redirected to your bank&apos;s secure payment page.</p>
+                                </div>
+                            )}
+
+                            {/* WALLET */}
+                            {paymentMethod === "wallet" && (
+                                <div className="space-y-3">
+                                    <p className="text-sm font-semibold text-gray-700 mb-3">Select Wallet</p>
+                                    {wallets.map((w) => (
+                                        <label
+                                            key={w.id}
+                                            className={`flex items-center gap-4 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${selectedWallet === w.id ? "border-[#B8960C] bg-[#fdfcf5]" : "border-gray-100 hover:border-gray-200"}`}
+                                        >
+                                            <input type="radio" checked={selectedWallet === w.id} onChange={() => setSelectedWallet(w.id)} className="accent-[#B8960C]" />
+                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: w.color }}>
+                                                {w.name.charAt(0)}
+                                            </div>
+                                            <span className="text-sm font-semibold text-gray-700">{w.name}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Session alert */}
+                    {timeLeft <= 60 && (
+                        <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700 font-medium animate-pulse">
+                            <AlertCircle size={16} className="shrink-0" />
+                            <span>⚠️ Only <strong>{formatTime(timeLeft)}</strong> left! Complete payment or cart will be cleared.</span>
+                        </div>
+                    )}
+                </div>
+
+                {/* RIGHT – Order Summary */}
+                <div className="space-y-4">
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden sticky top-24">
+                        <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-50">
+                            <Package size={16} className="text-[#B8960C]" />
+                            <h2 className="font-bold text-gray-800">Order Summary</h2>
+                            <span className="ml-auto text-xs text-gray-400">{items.reduce((s, i) => s + i.quantity, 0)} items</span>
+                        </div>
+
+                        {/* Items */}
+                        <div className="px-5 py-3 space-y-3 max-h-56 overflow-y-auto">
+                            {items.map((item) => (
+                                <div key={item.weight} className="flex items-center gap-3">
+                                    <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-100 shrink-0">
+                                        <Image src={coinImages[item.weight]} alt="Gold" width={36} height={36} className="object-contain" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-bold text-gray-800 truncate">{item.weight}g Gold Bar (24K)</p>
+                                        <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                                    </div>
+                                    <p className="text-sm font-bold text-gray-800 shrink-0">₹{(item.price * item.quantity).toLocaleString("en-IN")}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Totals */}
+                        <div className="px-5 py-4 border-t border-dashed border-gray-200 space-y-2.5">
+                            <div className="flex justify-between text-sm text-gray-500">
+                                <span>Subtotal ({totalWeight}g gold)</span>
+                                <span>₹{subtotal.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</span>
+                            </div>
+                            <div className="flex justify-between text-sm text-gray-500">
+                                <span>GST ({GST_RATE}%)</span>
+                                <span>₹{gst.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</span>
+                            </div>
+                            <div className="flex justify-between text-sm text-gray-500">
+                                <span>Delivery</span>
+                                <span className="text-green-600 font-semibold">FREE</span>
+                            </div>
+                            <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-100">
+                                <span>Total Amount</span>
+                                <span className="text-[#B8960C]">₹{total.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</span>
+                            </div>
+                        </div>
+
+                        {/* Pay button */}
+                        <div className="px-5 pb-5">
+                            <button
+                                onClick={handlePay}
+                                disabled={paying || sessionExpired || timeLeft === 0}
+                                className={`w-full py-4 rounded-xl font-bold text-base transition-all flex items-center justify-center gap-2 shadow-lg ${timeLeft === 0 || sessionExpired
+                                    ? "bg-gray-200 text-gray-400 cursor-not-allowed shadow-none"
+                                    : "bg-gradient-to-r from-[#B8960C] to-[#D4AF37] text-white hover:shadow-[#B8960C]/30 hover:scale-[1.01]"
+                                    }`}
+                            >
+                                {paying ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        Processing...
+                                    </>
+                                ) : timeLeft === 0 ? (
+                                    <>
+                                        <Lock size={18} />
+                                        Session Expired
+                                    </>
+                                ) : (
+                                    <>
+                                        <Lock size={16} />
+                                        Pay ₹{total.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+                                    </>
+                                )}
+                            </button>
+
+                            {/* Trust badges */}
+                            <div className="flex items-center justify-center gap-4 mt-4 text-xs text-gray-400">
+                                <span className="flex items-center gap-1"><ShieldCheck size={12} className="text-green-500" />Secure</span>
+                                <span className="flex items-center gap-1"><Lock size={12} className="text-blue-400" />Encrypted</span>
+                                <span className="flex items-center gap-1"><Truck size={12} className="text-[#B8960C]" />Insured</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Assurance */}
+                    <div className="bg-gradient-to-br from-[#fdfcf5] to-white rounded-2xl border border-[#faeeb1] p-4 text-sm text-gray-600 space-y-2">
+                        {[
+                            "24K certified gold — 999.9 purity",
+                            "Tamper-proof packaging & insured delivery",
+                            "Easy buyback at live market rates",
+                            "7-day return & quality guarantee",
+                        ].map((t) => (
+                            <div key={t} className="flex items-center gap-2">
+                                <CheckCircle2 size={14} className="text-green-500 shrink-0" />
+                                <span>{t}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

@@ -19,8 +19,7 @@ import { PartnersTab } from "./tabs/PartnersTab";
 import { LoansTab } from "./tabs/LoansTab";
 import { ProfileTab } from "./tabs/ProfileTab";
 import { UsersTab } from "./tabs/UsersTab";
-import { BuyGoldFlow } from "./flows/BuyGoldFlow";
-import { SellGoldFlow } from "./flows/SellGoldFlow";
+import { BuySellFlow } from "./flows/BuySellFlow";
 import { ManageSIPPage } from "./ManageSIPPage";
 import { JewelleryFlow } from "./JewelleryPage";
 import { SIPCalculator } from "./SIPCalculator";
@@ -43,6 +42,10 @@ export function MainApp({ user }: MainAppProps) {
   const [activeTab, setActiveTab] = useState<Tab>("home");
   const [showBuyFlow, setShowBuyFlow] = useState(false);
   const [showSellFlow, setShowSellFlow] = useState(false);
+  type MetalType = "gold" | "silver";
+  type ActionType = "buy" | "sell";
+  const [tradeMetal, setTradeMetal] = useState<MetalType>("gold");
+  const [tradeAction, setTradeAction] = useState<ActionType>("buy");
   const [showManageSIP, setShowManageSIP] = useState(false);
   const [showJewellery, setShowJewellery] = useState(false);
   const [showSIPCalculator, setShowSIPCalculator] = useState(false);
@@ -107,12 +110,14 @@ export function MainApp({ user }: MainAppProps) {
     router.push("/onboarding");
   };
 
-  if (showBuyFlow) {
-    return <BuyGoldFlow onClose={() => setShowBuyFlow(false)} />;
-  }
-
-  if (showSellFlow) {
-    return <SellGoldFlow onClose={() => setShowSellFlow(false)} />;
+  if (showBuyFlow || showSellFlow) {
+    return (
+      <BuySellFlow
+        defaultMetal={tradeMetal}
+        defaultAction={tradeAction}
+        onClose={() => { setShowBuyFlow(false); setShowSellFlow(false); }}
+      />
+    );
   }
   if (showManageSIP) {
     return <ManageSIPPage onClose={() => setShowManageSIP(false)} />;
@@ -139,8 +144,10 @@ export function MainApp({ user }: MainAppProps) {
           <HomeTab
             isLoading={isHomeTabLoading}
             onLoadingComplete={() => setIsHomeTabLoading(false)}
-            onBuyGold={() => setShowBuyFlow(true)}
-            onSellGold={() => setShowSellFlow(true)}
+            onBuyGold={() => { setTradeMetal("gold"); setTradeAction("buy"); setShowBuyFlow(true); }}
+            onSellGold={() => { setTradeMetal("gold"); setTradeAction("sell"); setShowSellFlow(true); }}
+            onBuySilver={() => { setTradeMetal("silver"); setTradeAction("buy"); setShowBuyFlow(true); }}
+            onSellSilver={() => { setTradeMetal("silver"); setTradeAction("sell"); setShowSellFlow(true); }}
             onJewellery={() => setShowJewellery(true)}
             onOpenSIPCalculator={() => setShowSIPCalculator(true)}
             onOpenReferral={() => setShowReferral(true)}
@@ -237,7 +244,7 @@ export function MainApp({ user }: MainAppProps) {
         )}
         <div className="space-y-2">
           <button
-            onClick={() => setShowBuyFlow(true)}
+            onClick={() => { setTradeMetal("gold"); setTradeAction("buy"); setShowBuyFlow(true); }}
             className={`flex w-full items-center ${!sidebarCollapsed ? "gap-3" : "justify-center"} rounded-lg bg-[#3D3066] p-3 text-white transition-colors hover:bg-[#5C4E7F] dark:bg-[#4D3F7F] dark:hover:bg-[#5C4E9F]`}
             title="Buy Gold"
           >
@@ -315,7 +322,7 @@ export function MainApp({ user }: MainAppProps) {
           <GoldGoals
             onClose={() => setShowGoldGoals(false)}
             mode="view"
-            onBuyGold={() => setShowBuyFlow(true)}
+            onBuyGold={() => { setTradeMetal("gold"); setTradeAction("buy"); setShowBuyFlow(true); }}
           />
         )}
         {showApplyLoan && (
@@ -366,7 +373,7 @@ export function MainApp({ user }: MainAppProps) {
         <GoldGoals
           onClose={() => setShowGoldGoals(false)}
           mode="view"
-          onBuyGold={() => setShowBuyFlow(true)}
+          onBuyGold={() => { setTradeMetal("gold"); setTradeAction("buy"); setShowBuyFlow(true); }}
         />
       )}
       {showApplyLoan && (
@@ -403,6 +410,8 @@ export function MainApp({ user }: MainAppProps) {
           >
             <button
               onClick={() => {
+                setTradeMetal("gold");
+                setTradeAction("buy");
                 setShowBuyFlow(true);
                 setShowQuickMenu(false);
               }}

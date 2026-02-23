@@ -246,7 +246,7 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
   return (
     <div className="fixed inset-0 z-50 flex min-h-screen flex-col overflow-y-auto bg-gray-50 dark:bg-neutral-900">
       {/* Header - Responsive */}
-      <div className="sticky top-0 z-10 bg-linear-to-br from-[#FCDE5B] via-[#f5d347] to-[#edc830] px-4 py-3 shadow-lg sm:px-6 sm:py-4">
+      <div className="sticky top-0 z-10 bg-gradient-to-r from-[#EEC762] to-[#C89E3D] px-4 py-3 shadow-lg sm:px-6 sm:py-4">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
             <button
@@ -268,14 +268,14 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
       </div>
 
       {/* Main Content - Responsive Container */}
-      <div className="mx-auto w-full max-w-4xl flex-1 px-4 py-4 pb-24 sm:px-6 sm:py-6 lg:px-8">
+      <div className="mx-auto w-full max-w-4xl flex-1 px-4 py-4 pb-24 sm:px-6 sm:py-6 lg:px- bg-white">
         {/* Test Wallet Banner - Responsive */}
         <div className="mb-4 rounded-xl bg-linear-to-r from-[#1a1a2e] to-[#16213e] p-4 shadow-xl sm:mb-6 sm:rounded-2xl sm:p-5">
           <div className="flex flex-col gap-3 text-white sm:flex-row sm:items-center sm:justify-between sm:gap-0">
             <div>
               <div className="mb-1.5 flex items-center gap-2 sm:mb-2">
-                <WalletIcon className="h-4 w-4 text-[#FCDE5B] sm:h-5 sm:w-5" />
-                <span className="text-xs font-medium text-[#FCDE5B] sm:text-sm">
+                <WalletIcon className="h-4 w-4 text-[#eec762] sm:h-5 sm:w-5" />
+                <span className="text-xs font-medium text-[#eec762] sm:text-sm">
                   🧪 TEST MODE
                 </span>
               </div>
@@ -289,7 +289,7 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
             <button
               onClick={addTestCredits}
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#FCDE5B] px-3 py-2 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-[#f5d347] disabled:opacity-50 sm:w-auto sm:rounded-xl sm:px-4 sm:py-2.5"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#eec762] px-3 py-2 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-[#f5d347] disabled:opacity-50 sm:w-auto sm:rounded-xl sm:px-4 sm:py-2.5"
             >
               <Plus className="h-4 w-4" />
               Add ₹10,000
@@ -334,7 +334,7 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
           <div>
 
             {/* Live Rate Card */}
-            <div className="mb-4 rounded-xl border border-gray-100 bg-white p-4 shadow-lg sm:mb-6 sm:rounded-2xl sm:p-5 dark:border-neutral-700 dark:bg-neutral-800">
+            <div className="mb-4 rounded-xl bg-white p-4 sm:mb-6 sm:rounded-2xl sm:p-5 dark:border-neutral-700 dark:bg-neutral-800">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
                 <div>
                   <div className="mb-1.5 flex items-center gap-2 sm:mb-2">
@@ -365,32 +365,11 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
             </div>
 
 
-            {/* Buy Coins CTA */}
-            <button
-              onClick={() => router.push("/buy-coins")}
-              className="mb-4 flex w-full items-center justify-between rounded-xl border-2 border-[#D4AF37]/30 bg-linear-to-r from-[#fafafa] to-[#fef9e6] p-4 transition-all hover:border-[#D4AF37] hover:shadow-md active:scale-[0.99] sm:mb-6 sm:rounded-2xl sm:p-5 dark:from-[#1a1a1a] dark:to-[#2a2415] dark:border-[#D4AF37]/50"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-[#f5e6a3] to-[#d4af37] sm:h-12 sm:w-12">
-                  <Coins className="h-5 w-5 text-[#5a4a1a] sm:h-6 sm:w-6" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-bold text-[#1a1a1a] sm:text-base dark:text-white">
-                    Buy Gold Coins
-                  </p>
-                  <p className="text-[10px] text-[#888] sm:text-xs">
-                    Physical coins • 1g, 2g, 5g, 10g
-                  </p>
-                </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-[#D4AF37]" />
-            </button>
-
 
 
 
             {/* ENTER AMOUNT (Now placed here) */}
-            <div className="mb-4 rounded-xl border border-gray-100 bg-white p-4 shadow-lg sm:mb-6 sm:rounded-2xl sm:p-6 dark:border-neutral-700 dark:bg-neutral-800">
+            <div className="mb-4  bg-white p-4  sm:mb-6 sm:rounded-2xl sm:p-6 dark:border-neutral-700 dark:bg-neutral-800">
 
               <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-3">
                 Enter Amount
@@ -416,7 +395,7 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
                 {/* Swap */}
                 <button
                   onClick={swapInputs}
-                  className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FCDE5B] font-bold shadow"
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-[#eec762] font-bold shadow"
                 >
                   ⇆
                 </button>
@@ -450,7 +429,7 @@ export function BuyGoldFlow({ onClose }: BuyGoldFlowProps) {
 
 
             {/* Info Box */}
-            <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 sm:mb-6 sm:rounded-xl sm:p-4 dark:border-blue-800 dark:bg-blue-900/20">
+            <div className="mb-4 rounded-lg  bg-blue-50 p-3 sm:mb-6 sm:rounded-xl sm:p-4 dark:border-blue-800 dark:bg-blue-900/20">
               <div className="flex items-start gap-2 sm:gap-3">
                 <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 sm:h-5 sm:w-5 dark:text-blue-400" />
                 <div className="text-xs sm:text-sm">

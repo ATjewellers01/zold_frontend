@@ -13,7 +13,7 @@ export default function GoldGoalsPage() {
         <GoldGoals
             onClose={() => router.back()}
             mode="view"
-            onBuyGold={() => router.push('/buy-gold')}
+            onBuyGold={() => router.push('/buy-sell?metal=gold&action=buy')}
         />
     );
 }

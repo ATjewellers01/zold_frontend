@@ -1,8 +1,6 @@
 import {
     Home,
     Wallet,
-    MapPin,
-    Banknote,
     User,
     Plus,
     Coins,
@@ -13,8 +11,10 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export function BottomNav() {
+    const router = useRouter();
     const pathname = usePathname();
     const [showQuickMenu, setShowQuickMenu] = useState(false);
 
@@ -22,7 +22,7 @@ export function BottomNav() {
 
     return (
         <>
-            {/* Quick Action Menu */}
+            {/* ================= QUICK ACTION MENU ================= */}
             {showQuickMenu && (
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 lg:hidden"
@@ -33,11 +33,11 @@ export function BottomNav() {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <Link
-                            href="/buy-gold"
+                            href="/buy-sell?metal=gold&action=buy"
                             onClick={() => setShowQuickMenu(false)}
-                            className="flex w-full items-center gap-3 rounded-xl p-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-neutral-700/50"
+                            className="flex w-full items-center gap-3 rounded-xl p-4 hover:bg-gray-50 dark:hover:bg-neutral-700/50"
                         >
-                            <div className="rounded-lg bg-[#3D3066] p-2 text-white dark:bg-[#4D3F7F]">
+                            <div className="rounded-lg bg-[#3D3066] p-2 text-white">
                                 <Coins className="h-5 w-5" />
                             </div>
                             <div>
@@ -51,9 +51,9 @@ export function BottomNav() {
                         <Link
                             href="/gold-goals"
                             onClick={() => setShowQuickMenu(false)}
-                            className="flex w-full items-center gap-3 rounded-xl p-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-neutral-700/50"
+                            className="flex w-full items-center gap-3 rounded-xl p-4 hover:bg-gray-50 dark:hover:bg-neutral-700/50"
                         >
-                            <div className="rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 p-2 text-white dark:from-blue-600 dark:to-cyan-600">
+                            <div className="rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 p-2 text-white">
                                 <Target className="h-5 w-5" />
                             </div>
                             <div>
@@ -67,9 +67,9 @@ export function BottomNav() {
                         <Link
                             href="/gift-gold"
                             onClick={() => setShowQuickMenu(false)}
-                            className="flex w-full items-center gap-3 rounded-xl p-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-neutral-700/50"
+                            className="flex w-full items-center gap-3 rounded-xl p-4 hover:bg-gray-50 dark:hover:bg-neutral-700/50"
                         >
-                            <div className="rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 p-2 text-white dark:from-pink-600 dark:to-rose-600">
+                            <div className="rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 p-2 text-white">
                                 <Gift className="h-5 w-5" />
                             </div>
                             <div>
@@ -84,7 +84,7 @@ export function BottomNav() {
 
                         <button
                             onClick={() => setShowQuickMenu(false)}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl p-3 text-sm text-gray-600 transition-colors hover:bg-gray-50 dark:text-neutral-400 dark:hover:bg-neutral-700/50"
+                            className="flex w-full items-center justify-center gap-2 rounded-xl p-3 text-sm text-gray-600 hover:bg-gray-50 dark:text-neutral-400 dark:hover:bg-neutral-700/50"
                         >
                             <X className="h-4 w-4" />
                             <span>Close</span>
@@ -93,30 +93,39 @@ export function BottomNav() {
                 </div>
             )}
 
-            {/* Floating Action Button */}
+            {/* ================= FLOATING ACTION BUTTON ================= */}
             <button
-                onClick={() => setShowQuickMenu(!showQuickMenu)}
-                className={`fixed right-6 bottom-24 z-40 rounded-full bg-[#3D3066] p-4 text-white shadow-lg transition-all hover:scale-110 hover:bg-[#5C4E7F] dark:bg-[#4D3F7F] dark:shadow-neutral-900/50 dark:hover:bg-[#5C4E9F] lg:hidden ${showQuickMenu ? "rotate-45" : ""
-                    }`}
+                onClick={() => router.push("/buy-sell?metal=gold&action=buy")}
+                className="
+fixed left-1/2 bottom-8 z-50 -translate-x-1/2
+h-18 w-18 rounded-full 
+flex flex-col items-center justify-center
+ bg-purple-950 border border-gray-700/70
+text-[12px] font-bold tracking-wide text-white
+border-3 border-[#8B4513]/30 
+lg:hidden
+"
             >
-                <Plus className="h-6 w-6" />
+                <span>BUY</span>
+                <span>NOW</span>
             </button>
 
-            {/* Bottom Navigation */}
-            <div className="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-800 lg:hidden">
+            {/* ================= BOTTOM NAV ================= */}
+            <div className="fixed right-0 bottom-0 left-0 z-40 border-t border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-800 lg:hidden">
                 <div className="w-full px-2 py-2">
                     <div className="flex items-center justify-around">
                         {[
                             { path: "/home", icon: Home, label: "Home" },
                             { path: "/wallet", icon: Wallet, label: "Wallet" },
-                            { path: "/partners", icon: MapPin, label: "Partners" },
-                            { path: "/loans", icon: Banknote, label: "Loans" },
+                            { path: "/gift-gold", icon: Gift, label: "Gift" },
                             { path: "/profile", icon: User, label: "Profile" },
-                        ].map((item) => (
+                        ].map((item, index) => (
                             <Link
                                 key={item.path}
                                 href={item.path}
-                                className={`flex flex-col items-center gap-1 rounded-lg px-4 py-2 transition-colors ${isActive(item.path)
+                                className={`flex flex-col items-center gap-1 rounded-lg px-4 py-2 transition-colors
+            ${index === 1 ? "mr-15" : ""}   /* 👈 small space after Wallet */
+            ${isActive(item.path)
                                         ? "bg-[#F3F1F7] text-[#3D3066] dark:bg-neutral-700 dark:text-white"
                                         : "text-gray-600 hover:bg-gray-50 dark:text-neutral-400 dark:hover:bg-neutral-700/50"
                                     }`}

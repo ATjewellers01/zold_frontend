@@ -60,7 +60,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       <div className="border-b border-gray-200 p-6 dark:border-neutral-700">
         {!collapsed ? (
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FCDE5B]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EEC762]">
               <Coins className="h-6 w-6 text-[#1a1a2e]" />
             </div>
             <div>
@@ -74,12 +74,12 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           </div>
         ) : (
           <div className="flex justify-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FCDE5B]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EEC762]">
               <Coins className="h-6 w-6 text-[#1a1a2e]" />
             </div>
           </div>
         )}
-      </div>  
+      </div>
 
       {/* Navigation Items */}
       {navItems.map((item) => {
@@ -103,7 +103,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             className={`group flex w-full items-center gap-3 rounded-lg px-4 py-3 
 transition-all duration-200 ease-in-out
   ${isActive(item.path)
-                ? "bg-gradient-to-r from-[#FCDE5B] to-[#E6B800]/90 text-gray-900 shadow-md scale-[1.02] dark:from-[#F4C430]/30 dark:to-[#E6B800]/20 dark:text-[#FFD54F]"
+                ? " bg-gradient-to-r from-white via-[#f6e8bd] to-[#f1dda5] text-gray-900 shadow-md scale-[1.02] dark:from-[#F4C430]/30 dark:to-[#E6B800]/20 dark:text-[#FFD54F]"
                 : "text-gray-700 hover:bg-gray-100 hover:shadow-sm dark:text-neutral-400 dark:hover:bg-neutral-800"
               }`}
           >
@@ -138,8 +138,8 @@ transition-all duration-200 ease-in-out
         )}
         <div className="space-y-2">
           <Link
-            href="/buy-gold"
-            className={`flex w-full items-center ${!collapsed ? "gap-3" : "justify-center"
+            href="/buy-sell?metal=gold&action=buy"
+            className={`flex w-full items-center bg-gradient-to-r from-[#F5D97A] to-[#D4AF37] ${!collapsed ? "gap-3" : "justify-center"
               } rounded-lg bg-[#FCDE5B] p-3 font-semibold text-[#1a1a2e] shadow-md transition-all hover:bg-[#f5d347] hover:shadow-lg`}
             title="Buy Gold"
           >
@@ -149,7 +149,7 @@ transition-all duration-200 ease-in-out
           <Link
             href="/gold-goals"
             className={`flex w-full items-center ${!collapsed ? "gap-3" : "justify-center"
-              } rounded-lg border border-gray-200 bg-white p-3 transition-all hover:border-[#FCDE5B] hover:bg-[#FCDE5B]/5 dark:border-neutral-600 dark:bg-neutral-800 dark:hover:border-[#FCDE5B]`}
+              } rounded-lg border border-gray-200 bg-white p-3 transition-all hover:border-[#B8860B] hover:bg-[#FCDE5B]/5 dark:border-neutral-600 dark:bg-neutral-800 dark:hover:border-[#FCDE5B]`}
             title="Create Goal"
           >
             <Target className="h-5 w-5 text-gray-600 dark:text-neutral-300" />
@@ -162,7 +162,7 @@ transition-all duration-200 ease-in-out
           <Link
             href="/gift-gold"
             className={`flex w-full items-center ${!collapsed ? "gap-3" : "justify-center"
-              } rounded-lg border border-gray-200 bg-white p-3 transition-all hover:border-[#FCDE5B] hover:bg-[#FCDE5B]/5 dark:border-neutral-600 dark:bg-neutral-800 dark:hover:border-[#FCDE5B]`}
+              } rounded-lg border border-gray-200 bg-white p-3 transition-all hover:border-[#B8860B] hover:bg-[#FCDE5B]/5 dark:border-neutral-600 dark:bg-neutral-800 dark:hover:border-[#FCDE5B]`}
             title="Gift Gold"
           >
             <Gift className="h-5 w-5 text-gray-600 dark:text-neutral-300" />
@@ -179,7 +179,11 @@ transition-all duration-200 ease-in-out
       <div className="border-t border-gray-200 p-4 dark:border-neutral-700">
         <button
           onClick={onToggle}
-          className="flex w-full items-center justify-center gap-3 rounded-lg p-3 text-gray-600 transition-colors hover:bg-[#FCDE5B]/10 dark:text-neutral-400 dark:hover:bg-neutral-700/50"
+          className="flex w-full items-center justify-center gap-3 rounded-lg p-3 text-gray-900 transition-colors bg-transparent
+  hover:bg-gradient-to-r
+  hover:from-[#EEC762]
+  hover:to-[#C89E3D]
+  transition-all duration-300  dark:text-neutral-400 dark:hover:bg-neutral-700/50"
         >
           <Menu className="h-5 w-5" />
           {!collapsed && <span className="font-medium">Collapse Menu</span>}

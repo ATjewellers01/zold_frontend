@@ -33,7 +33,7 @@ export default function MainLayout({
                 className={`min-h-screen flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 dark:bg-neutral-900 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
                     }`}
             >
-                <div className="w-full lg:px-3 pb-20 lg:pb-0">
+                <div className="w-full lg:px-3 bg-[#fff9e8]/90 pb-20 lg:pb-0">
                     {children}
                 </div>
             </div>

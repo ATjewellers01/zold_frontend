@@ -10,7 +10,7 @@ interface WalletTabProps {
 
 export function WalletTab({ onBack, onBuyGold, onSellGold }: WalletTabProps) {
   const [selectedTimeframe, setSelectedTimeframe] = useState<"ALL" | "1M" | "1W">("ALL");
-  
+
   const walletData = {
     totalGold: 12.547,
     currentValue: 77845,
@@ -57,6 +57,8 @@ export function WalletTab({ onBack, onBuyGold, onSellGold }: WalletTabProps) {
           </div>
         </div>
 
+
+
         {/* Wallet Summary */}
         <div className="rounded-2xl bg-white/10 p-6 backdrop-blur-md dark:bg-white/5">
           <div className="mb-4 flex items-center justify-between">
@@ -68,7 +70,7 @@ export function WalletTab({ onBack, onBuyGold, onSellGold }: WalletTabProps) {
             </div>
             <Coins className="h-8 w-8 text-white/90" />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-white/80">Current Value</p>
@@ -79,7 +81,7 @@ export function WalletTab({ onBack, onBuyGold, onSellGold }: WalletTabProps) {
               <p className="text-lg text-white">₹{walletData.totalInvested.toLocaleString()}</p>
             </div>
           </div>
-          
+
           <div className="mt-4 flex items-center justify-between">
             <div>
               <p className="text-sm text-white/80">Profit & Loss</p>
@@ -128,11 +130,10 @@ export function WalletTab({ onBack, onBuyGold, onSellGold }: WalletTabProps) {
                 <button
                   key={timeframe}
                   onClick={() => setSelectedTimeframe(timeframe)}
-                  className={`rounded-md px-3 py-1 text-sm ${
-                    selectedTimeframe === timeframe
-                      ? "bg-white text-[#3D3066] shadow dark:bg-neutral-600 dark:text-white"
-                      : "text-gray-600 dark:text-neutral-400"
-                  }`}
+                  className={`rounded-md px-3 py-1 text-sm ${selectedTimeframe === timeframe
+                    ? "bg-white text-[#3D3066] shadow dark:bg-neutral-600 dark:text-white"
+                    : "text-gray-600 dark:text-neutral-400"
+                    }`}
                 >
                   {timeframe}
                 </button>

@@ -17,6 +17,8 @@ import {
   ChevronRight,
   ArrowLeft,
   FileText,
+  Wallet as WalletIcon,
+  Plus,
 } from "lucide-react";
 import { ZoldLogoHorizontal } from "@/components/ZoldLogo";
 import { WalletTabSkeleton } from "../skeletons/WalletTabSkeleton";
@@ -45,6 +47,11 @@ export function WalletTab({ onOpenManageSIP, onBack }: WalletTabProps) {
   const [profitLoss, setProfitLoss] = useState(0);
   const [profitLossPercent, setProfitLossPercent] = useState(0);
   const [transactions, setTransactions] = useState<any[]>([]);
+
+  // Test mode states
+  const [testWalletBalance, setTestWalletBalance] = useState(0);
+  const [loadingTestCredits, setLoadingTestCredits] = useState(false);
+
   const freeGold = totalGold;
   const pledgedGold = 0;
 
@@ -55,6 +62,44 @@ export function WalletTab({ onOpenManageSIP, onBack }: WalletTabProps) {
     return null;
   };
 
+  const fetchTestWallet = async () => {
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`${API_URL}/gold/test-wallet`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (data.success) {
+        setTestWalletBalance(parseFloat(data.data.virtualBalance));
+      }
+    } catch (error) {
+      console.error("Error fetching test wallet:", error);
+    }
+  };
+
+  const addTestCredits = async () => {
+    try {
+      setLoadingTestCredits(true);
+      const token = getAuthToken();
+      const response = await fetch(`${API_URL}/gold/test-wallet/add-credits`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ amount: 10000 }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setTestWalletBalance(parseFloat(data.data.virtualBalance));
+      }
+    } catch (error) {
+      console.error("Error adding credits:", error);
+    } finally {
+      setLoadingTestCredits(false);
+    }
+  };
+
   const fetchWalletData = async () => {
     try {
       const token = getAuthToken();
@@ -62,6 +107,9 @@ export function WalletTab({ onOpenManageSIP, onBack }: WalletTabProps) {
         setIsInternalLoading(false);
         return;
       }
+
+      // Fetch test wallet
+      await fetchTestWallet();
 
       // Fetch wallet balance
       const balanceRes = await fetch(`${API_URL}/gold/wallet/balance`, {
@@ -105,9 +153,6 @@ export function WalletTab({ onOpenManageSIP, onBack }: WalletTabProps) {
   useEffect(() => {
     fetchWalletData();
   }, []);
-
-  // Removed static loading check - components render immediately
-  // Only show skeletons for dynamic data sections
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -165,13 +210,13 @@ export function WalletTab({ onOpenManageSIP, onBack }: WalletTabProps) {
     // Search filter
     if (
       searchQuery &&
-      !t.title.toLowerCase().includes(searchQuery.toLowerCase())
+      !t.title?.toLowerCase().includes(searchQuery.toLowerCase())
     )
       return false;
 
     // Date filter
     if (dateFilter !== "all") {
-      const transactionDate = new Date(t.date);
+      const transactionDate = new Date(t.createdAt);
       const today = new Date();
       const diffDays = Math.floor(
         (today.getTime() - transactionDate.getTime()) / (1000 * 60 * 60 * 24),
@@ -204,16 +249,46 @@ export function WalletTab({ onOpenManageSIP, onBack }: WalletTabProps) {
         className="rounded-b-3xl bg-white px-6 pt-6 pb-6 bg-yellow-50
   shadow-[0_10px_30px_rgba(0,0,0,0.06)]"
       >
-        <div className="mb-6 flex items-center gap-4">
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="rounded-full bg-yellow-100 p-2 text-[#8b6f00] transition-colors hover:bg-yellow-200"
-            >
-              <ArrowLeft className="h-6 w-6" />
-            </button>
-          )}
-          <img src="01.jpg" alt="Zold Logo" className="h-16 rounded-xl" />
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="rounded-full bg-yellow-100 p-2 text-[#8b6f00] transition-colors hover:bg-yellow-200"
+              >
+                <ArrowLeft className="h-6 w-6" />
+              </button>
+            )}
+            <img src="01.jpg" alt="Zold Logo" className="h-16 rounded-xl" />
+          </div>
+
+          {/* Test Mode Banner - Right side of header */}
+          <div className="rounded-xl bg-gradient-to-r from-[#1a1a2e] to-[#16213e] p-5 shadow-xl ">
+            <div className="flex items-center gap-3">
+              <div>
+                <div className="mb-0.5 flex items-center gap-1.5">
+                  <WalletIcon className="h-3.5 w-3.5 text-[#eec762]" />
+                  <span className="text-xs font-medium text-[#eec762]">
+                    🧪 TEST MODE
+                  </span>
+                </div>
+                <p className="text-base font-bold text-white">
+                  ₹{testWalletBalance.toFixed(2)}
+                </p>
+                <p className="text-[8px] text-white/70">
+                  Test Wallet Balance
+                </p>
+              </div>
+              <button
+                onClick={addTestCredits}
+                disabled={loadingTestCredits}
+                className="flex items-center gap-1 rounded-lg bg-[#eec762] px-2 py-1.5 text-xs font-semibold text-[#1a1a2e] transition-colors hover:bg-[#f5d347] disabled:opacity-50"
+              >
+                <Plus className="h-3 w-3" />
+                Add ₹10k
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Wallet Overview */}

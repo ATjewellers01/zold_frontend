@@ -165,7 +165,7 @@ export function UsersTab() {
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-gray-100 dark:divide-neutral-700">
+              <tbody className="divide-y divide-gray-100 dark:divide-neutral-700 text-gray-700">
                 {filteredUsers.length === 0 ? (
                   <tr>
                     <td

@@ -295,7 +295,7 @@ export default function ProductDetailPage() {
                                     </div>
 
                                     <button
-                                        className="flex-1 h-14 bg-yellow-200 hover:bg-yellow-300 text-[#7a6500] font-bold rounded-2xl shadow-lg shadow-yellow-200/40 hover:shadow-yellow-300/50 transition-all flex items-center justify-center gap-3 text-lg"
+                                        className="flex-1 h-14 bg-[#B8960C] font-bold text-white font-bold rounded-2xl shadow-lg hover:shadow-gray-400/50 transition-all flex items-center justify-center gap-3 text-lg"
                                         onClick={handleAddToCart}
                                     >
                                         Add to Cart <ShoppingCart size={20} />

@@ -207,7 +207,7 @@ body::-webkit-scrollbar {
         .card:hover {
           // transform: translateY(-10px);
           box-shadow: 0 20px 50px rgba(184, 150, 12, 0.15);
-          height: 480px; /* Expand on hover */
+          height: 440px; /* Expand on hover */
         }
 
         .top-bar {
@@ -238,7 +238,7 @@ body::-webkit-scrollbar {
             position: absolute;
             bottom: 0;
             width: 100%;
-            height: 160px; /* Collapsed height */
+            height: 145px; /* Collapsed height */
         }
         
         .card:hover .details {
@@ -302,7 +302,7 @@ body::-webkit-scrollbar {
         <AnimatedBackground />
 
         <div className="banner-text">
-          <h2>Purchase Digital Gold</h2>
+          <h2>Purchase Gold Coins</h2>
           <p>Secure, 24K Certified Gold Delivered to Your Doorstep</p>
         </div>
 
@@ -329,9 +329,14 @@ body::-webkit-scrollbar {
                   <Image src={coinImages[coin.weight]} alt="Gold Coin" className="object-contain w-full h-full" />
                 </div>
 
-                <div className="details">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="product-name">{coin.weight} Gram</h3>
+                <div className="details px-3 pb-4 flex flex-col h-full">
+
+                  {/* TITLE + WISHLIST */}
+                  <div className="flex justify-between items-start2">
+                    <h3 className="text-base sm:text-lg font-semibold text-[#1a1a2e]">
+                      {coin.weight} Gram
+                    </h3>
+
                     <button
                       className="wishlist-btn"
                       onClick={(e) => {
@@ -339,44 +344,34 @@ body::-webkit-scrollbar {
                         toggleWishlist(coin.weight);
                       }}
                     >
-                      <Heart size={20} className={isWishlisted ? "fill-red-500 text-red-500" : "text-gray-300"} />
+                      <Heart
+                        size={20}
+                        className={
+                          isWishlisted
+                            ? "fill-red-500 text-red-500"
+                            : "text-gray-300 hover:text-gray-400"
+                        }
+                      />
                     </button>
                   </div>
 
-                  <p className="text-xs text-gray-500 line-clamp-2 px-2 text-left mb-3">
+                  {/* DESCRIPTION */}
+                  <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 text-left mb-3 leading-relaxed">
                     {coin.description}
                   </p>
 
-                  <div className="product-price">₹ {(coin.weight * goldBuyPrice).toLocaleString()}</div>
-
-                  {itemInCart ? (
-                    <div className="flex items-center justify-center gap-3 bg-gray-50 rounded-full w-max mx-auto p-1 border border-gray-100" onClick={e => e.stopPropagation()}>
-                      <button
-                        className="w-8 h-8 rounded-full bg-white text-[#B8960C] flex items-center justify-center shadow-sm hover:bg-[#B8960C] hover:text-white transition-colors"
-                        onClick={() => handleUpdateQuantity(coin.weight, -1)}
-                      >
-                        <Minus size={14} />
-                      </button>
-                      <span className="font-bold w-4 text-center text-black">{itemQty}</span>
-                      <button
-                        className="w-8 h-8 rounded-full bg-white text-[#B8960C] flex items-center justify-center shadow-sm hover:bg-[#B8960C] hover:text-white transition-colors"
-                        onClick={() => handleUpdateQuantity(coin.weight, 1)}
-                      >
-                        <Plus size={14} />
-
-                      </button>
+                  {/* PRICE */}
+                  <div className="mt-auto">
+                    <div className="text-lg sm:text-xl font-bold text-[#B8960C] tracking-tight">
+                      ₹ {(coin.weight * goldBuyPrice).toLocaleString()}
                     </div>
-                  ) : (
-                    <button
-                      className="add-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToCart(coin, 1);
-                      }}
-                    >
-                      Add to Cart <ShoppingCart size={16} />
-                    </button>
-                  )}
+
+                    {/* subtle per gram */}
+                    <p className="text-[11px] text-gray-400 mt-1">
+                      {coin.weight}g 24K • Digital Gold
+                    </p>
+                  </div>
+
                 </div>
               </div>
             );

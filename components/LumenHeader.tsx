@@ -117,10 +117,10 @@ export default function LumenHeader() {
           </div>
 
           <div className="hidden md:flex nav-links gap-5">
-            <button className="nav-link text-yellow-500" onClick={() => router.push("/")}>
+            <button className="nav-link text-[#B8960C] font-bold" onClick={() => router.push("/")}>
               Home
             </button>
-            <button className="nav-link text-yellow-500" onClick={() => router.push("/buy-coins")}>
+            <button className="nav-link text-[#B8960C] font-bold" onClick={() => router.push("/buy-coins")}>
               Buy Coins
             </button>
 
