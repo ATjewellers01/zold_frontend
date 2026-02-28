@@ -11,6 +11,7 @@ import {
   Star,
   Sparkles,
   Target,
+  HandCoins,
   ChevronRight,
   Wallet,
   ArrowUpRight,
@@ -30,6 +31,7 @@ import doubleZoldSilver from "@/components/images/doubleZoldSIlver.png";
 import sell_gold from "@/components/images/Sell-Gold.png";
 import sell_silver from "@/components/images/Sell-Silver.png";
 import zoldCoin from "@/components/images/zoldCoin.png";
+import goldSilverCoin from "@/components/images/goldSilverCoins.png";
 import {
   XAxis,
   YAxis,
@@ -62,6 +64,7 @@ interface HomeTabProps {
   onOpenSIPCalculator?: () => void;
   onOpenReferral?: () => void;
   onOpenGiftGold?: () => void;
+  onOpenSip?: () => void;
   onOpenAuspiciousDays?: () => void;
   onOpenGoldGoals?: () => void;
   onOpenWalletDetails?: () => void;
@@ -92,6 +95,7 @@ export function HomeTab({
   onJewellery,
   onOpenReferral,
   onOpenGiftGold,
+  onOpenSip,
   onOpenAuspiciousDays,
   onOpenGoldGoals,
   onOpenWalletDetails,
@@ -424,6 +428,19 @@ export function HomeTab({
               <Target className="h-5 w-5 text-amber-600" />
               <span className="text-sm font-medium text-gray-700">
                 Gold Goals
+              </span>
+            </button>
+
+            <button
+              onClick={() => {
+                closeSidebar();
+                onOpenSip && onOpenSip();
+              }}
+              className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors hover:bg-amber-50"
+            >
+              <HandCoins className="h-5 w-5 text-amber-600" />
+              <span className="text-sm font-medium text-gray-700">
+                SIP
               </span>
             </button>
 
@@ -777,9 +794,9 @@ export function HomeTab({
                 className="group relative flex h-20 w-full items-center justify-center overflow-hidden rounded-[10px] border border-[#ead69c]/70 bg-gradient-to-b from-white via-[#faf3d6] to-[#f7eac8] shadow-sm transition hover:shadow-lg active:scale-[0.98] sm:h-25"
               >
                 <Image
-                  src={zoldCoin}
+                  src={goldSilverCoin}
                   alt="zold"
-                  className="h-12 w-12 rounded-[20px] object-cover transition-transform duration-300 group-hover:scale-110 sm:h-18 sm:w-18"
+                  className="h-14 w-18 rounded-[20px] object-cover transition-transform duration-300 group-hover:scale-110 sm:h-16 sm:w-20"
                 />
               </button>
               <p className="mt-2 text-xs font-bold text-[#1a1a1a]/70 sm:text-sm">

@@ -8,6 +8,8 @@ import {
   Target,
   Gift,
   Menu,
+  HandCoins,
+  Users,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -43,12 +45,12 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     { path: "/wallet", icon: Wallet, label: "Wallet" },
     { path: "/partners", icon: MapPin, label: "Partners" },
     // Loan Section is Diable for now ,  SERVICE UNDER DEVELOPMENT  
-    // { path: "/loans", icon: Banknote, label: "Loans" },
+    { path: "/manage-sip", icon: HandCoins, label: "SIP" },
     { path: "/profile", icon: User, label: "Profile" },
   ];
 
   if (role === "ADMIN") {
-    navItems.push({ path: "/users", icon: User, label: "Users" });
+    navItems.push({ path: "/users", icon: Users, label: "Users" });
   }
 
   return (

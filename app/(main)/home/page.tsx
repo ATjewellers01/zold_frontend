@@ -18,6 +18,7 @@ export default function HomePage() {
             onOpenSIPCalculator={() => router.push("/sip-calculator")}
             onOpenReferral={() => router.push("/referral")}
             onOpenGiftGold={() => router.push("/gift-gold")}
+            onOpenSip={() => router.push("/manage-sip")}
             onOpenAuspiciousDays={() => router.push("/auspicious-days")}
             onOpenGoldGoals={() => router.push("/gold-goals")}
             onOpenWalletDetails={() => router.push("/wallet-details")}
