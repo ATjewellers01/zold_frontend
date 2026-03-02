@@ -103,8 +103,8 @@ export function GiftGold({ onClose }: GiftGoldProps) {
     setInputMode("amount");        // 🔥 amount is source of truth
     setSelectedAmount(amount);
     setValueInput(amount.toFixed(2));   // keep exact
-    setGramsAmount(Number(grams.toFixed(4)));
-    setWeightInput(grams.toFixed(4));
+    setGramsAmount(Number(grams.toFixed(3)));
+    setWeightInput(grams.toFixed(3));
   };
 
   const [currentUserName, setCurrentUserName] = useState("User");
@@ -163,8 +163,8 @@ export function GiftGold({ onClose }: GiftGoldProps) {
     if (inputMode === "amount") {
       const grams = parseFloat(valueInput) / currentPrice;
       if (!isNaN(grams)) {
-        setGramsAmount(Number(grams.toFixed(4)));
-        setWeightInput(grams.toFixed(4));
+        setGramsAmount(Number(grams.toFixed(3)));
+        setWeightInput(grams.toFixed(3));
       }
     }
   }, [gramsAmount, valueInput, goldPrice, silverPrice, metalType, giftType, inputMode]);
@@ -751,7 +751,6 @@ export function GiftGold({ onClose }: GiftGoldProps) {
 
                         {/* Swap Button */}
                         <button
-
                           className="mt-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-50/20 hover:bg-gray-50/30 transition-colors"
                         >
                           <ArrowLeftRight className="h-5 w-5 text-white" />
